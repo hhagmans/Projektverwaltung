@@ -3,7 +3,35 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index()
+GET     /                           controllers.Application.projectOverview()
+
+# Project Overview
+GET     /projects                           controllers.Application.projectOverview()
+
+# User Overview
+GET     /user                           controllers.Application.userOverview()
+
+# Project View
+GET     /projects/1                           controllers.Application.projectView()
+
+# Project View
+GET     /user/1                           controllers.Application.userView()
+
+# Project Edit
+GET     /projects/1/edit                           controllers.Application.projectEdit()
+
+# Add User in Project Edit
+GET     /projects/1/adduser                           controllers.Application.projectEditAddUser()
+
+# Add User in Project Edit save
+#POST     /projects/1/adduser                           controllers.Application.projectEditAddUserSave()
+
+# Delete User in Project Edit
+#POST     /projects/1/deleteuser                           controllers.Application.projectEditDeleteUser()
+
+# Project Save
+#POST     /projects/1/save                           controllers.Application.projectSave()
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

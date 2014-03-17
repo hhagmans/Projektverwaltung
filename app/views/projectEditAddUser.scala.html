@@ -1,0 +1,38 @@
+@main("Add User")("")("active")("") {
+
+<h1>Umweltbundesamt ICS</h1>
+  
+  <div class="panel panel-default">
+  <div class="panel-heading">Add User</div>
+	  <div class="panel-body">
+	  
+  	  <label for="userGroup">Current User</label>
+	  <ul class="list-group" id="userGroup">
+	    <li class="list-group-item list-group-item-info">Hendrik Hagmans (hendrikh)</li>
+	    <li class="list-group-item list-group-item-info">Christian Oberschulte (co)</li>
+	  </ul>
+	  
+	  <form role="form">
+		  <label for="newUserInput"> New User</label>
+		  <select class="form-control" id="newUserInput">
+		 	<option>Hendrik Hagmans (hendrikh)</option>
+		  	<option>Christian Oberschulte (co)</option>
+		  	<option>Oliver Wolf (oliverw)</option>
+		  </select>
+		  
+		  <label for="startDateInput">Startdate</label>
+		  <input type="text" class="form-control" id="startDateInput" text="01-01-2014">
+		  
+		  <label for="endDateInput">Enddate</label>
+		  <input type="text" class="form-control" id="endDateInput" text="01-01-2014">
+	 
+	  	  <button type="submit" class="btn btn-success" href="/projects/1/adduser" style="margin-top:10px">Save</button>
+	  	  <a type="button" class="btn btn-primary" href="/projects/1/edit" style="margin-top:10px">Back</a>
+		
+	  </form>
+		</div>
+	</div>
+
+
+
+}
