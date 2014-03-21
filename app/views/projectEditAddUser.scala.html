@@ -1,20 +1,20 @@
-@main("Add User")("")("active")("") {
+@main("Add Employee")("")("active")("") {
 
 <h1>Umweltbundesamt ICS</h1>
   
   <div class="panel panel-default">
-  <div class="panel-heading">Add User</div>
+  <div class="panel-heading">Add Employee</div>
 	  <div class="panel-body">
 	  
-  	  <label for="userGroup">Current User</label>
-	  <ul class="list-group" id="userGroup">
+  	  <label for="employeeGroup">Current Employees</label>
+	  <ul class="list-group" id="employeeGroup">
 	    <li class="list-group-item list-group-item-info">Hendrik Hagmans (hendrikh)</li>
 	    <li class="list-group-item list-group-item-info">Christian Oberschulte (co)</li>
 	  </ul>
 	  
 	  <form role="form">
-		  <label for="newUserInput"> New User</label>
-		  <select class="form-control" id="newUserInput">
+		  <label for="newEmployeeInput"> New Employee</label>
+		  <select class="form-control" id="newEmployeeInput">
 		 	<option>Hendrik Hagmans (hendrikh)</option>
 		  	<option>Christian Oberschulte (co)</option>
 		  	<option>Oliver Wolf (oliverw)</option>
@@ -26,7 +26,7 @@
 		  <label for="endDateInput">Enddate</label>
 		  <input type="text" class="form-control" id="endDateInput" text="01-01-2014">
 	 
-	  	  <button type="submit" class="btn btn-success" href="/projects/1/adduser" style="margin-top:10px">Save</button>
+	  	  <button type="submit" class="btn btn-success" href="/projects/1/addemployee" style="margin-top:10px">Save</button>
 	  	  <a type="button" class="btn btn-primary" href="/projects/1/edit" style="margin-top:10px">Back</a>
 		
 	  </form>

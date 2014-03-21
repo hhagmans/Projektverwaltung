@@ -1,6 +1,8 @@
-@main("hendrikh")("")("")("active") {
+@(emp: Employee)
 
-<h1>Hendrik Hagmans (hendrikh)</h1>
+@main("Employee")("")("")("active") {
+
+<h1>@emp.name (@emp.uid)</h1>
 
 <div class="panel panel-default">
   <div class="panel-heading">

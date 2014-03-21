@@ -9,25 +9,25 @@ GET     /                           controllers.Application.projectOverview()
 GET     /projects                           controllers.Application.projectOverview()
 
 # User Overview
-GET     /user                           controllers.Application.userOverview()
+GET     /employee                           controllers.Application.employeeOverview()
 
 # Project View
 GET     /projects/1                           controllers.Application.projectView()
 
-# Project View
-GET     /user/1                           controllers.Application.userView()
+# Employee View
+GET     /employee/:id                           controllers.Application.employeeView(id: String)
 
 # Project Edit
 GET     /projects/1/edit                           controllers.Application.projectEdit()
 
 # Add User in Project Edit
-GET     /projects/1/adduser                           controllers.Application.projectEditAddUser()
+GET     /projects/1/addemployee                           controllers.Application.projectEditAddEmployee()
 
-# Add User in Project Edit save
-#POST     /projects/1/adduser                           controllers.Application.projectEditAddUserSave()
+# Add Employee in Project Edit save
+#POST     /projects/1/adduser                           controllers.Application.projectEditAddEmployeeSave()
 
-# Delete User in Project Edit
-#POST     /projects/1/deleteuser                           controllers.Application.projectEditDeleteUser()
+# Delete Employee in Project Edit
+#POST     /projects/1/deleteEmployee                          controllers.Application.projectEditDeleteEmployee()
 
 # Project Save
 #POST     /projects/1/save                           controllers.Application.projectSave()
