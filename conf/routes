@@ -23,6 +23,12 @@ GET     /projects/1/edit                           controllers.Application.proje
 # Add User in Project Edit
 GET     /projects/1/addemployee                           controllers.Application.projectEditAddEmployee()
 
+# Admin Index
+GET     /admin                           controllers.Application.adminIndex()
+
+# Sync Database in Admin View
+GET     /admin/syncdb                           controllers.Application.adminSyncDb()
+
 # Add Employee in Project Edit save
 #POST     /projects/1/adduser                           controllers.Application.projectEditAddEmployeeSave()
 

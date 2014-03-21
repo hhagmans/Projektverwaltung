@@ -2,7 +2,9 @@ package controllers;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,13 +15,26 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class Application extends Controller {
 
-	public static List<Employee> getAllEmployees() throws MalformedURLException {
-		URL url = new URL(
-				"https://intern.innoq.com/liqid/groups/Mitarbeiter.json");
+	public static List<Employee> getAllEmployees() {
+		Authenticator.setDefault(new Authenticator() {
+
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication("hendrikh", "".toCharArray());
+			}
+		});
+		URL url = null;
+		try {
+			url = new URL(
+					"https://intern.innoq.com/liqid/groups/Mitarbeiter.json");
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
 		InputStream is = null;
 		List<Employee> list = new ArrayList<Employee>();
 		try {
@@ -41,16 +56,15 @@ public class Application extends Controller {
 		}
 	}
 
-	public static Employee getEmployee(String uid) throws MalformedURLException {
-		/*
-		 * Authenticator.setDefault(new Authenticator() {
-		 * 
-		 * @Override protected PasswordAuthentication
-		 * getPasswordAuthentication() { return new
-		 * PasswordAuthentication("hendrikh", "".toCharArray()); } });
-		 */
-		URL url = new URL("https://intern.innoq.com/liqid/users/" + uid
-				+ ".json");
+	public static Employee getEmployee(String uid) {
+
+		URL url = null;
+		try {
+			url = new URL("https://intern.innoq.com/liqid/users/" + uid
+					+ ".json");
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
 		InputStream is = null;
 		try {
 			is = url.openStream();
@@ -64,17 +78,23 @@ public class Application extends Controller {
 		}
 	}
 
+	public static void synchronizeDB() {
+		List<Employee> allEmps = getAllEmployees();
+		for (Employee employee : allEmps) {
+			if (Ebean.find(Employee.class, employee.uid) == null)
+				employee.save();
+			else if (Ebean.find(Employee.class, employee.uid).name != employee.name)
+				employee.update();
+		}
+	}
+
 	public static Result projectOverview() {
 		return ok(views.html.projectOverview.render());
 	}
 
 	public static Result employeeOverview() {
 		List<Employee> allEmps = null;
-		try {
-			allEmps = getAllEmployees();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+		allEmps = getAllEmployees();
 		return ok(views.html.employeeOverview.render(allEmps));
 	}
 
@@ -92,11 +112,16 @@ public class Application extends Controller {
 
 	public static Result employeeView(String id) {
 		Employee emp = null;
-		try {
-			emp = getEmployee(id);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+		emp = getEmployee(id);
 		return ok(views.html.employeeView.render(emp));
+	}
+
+	public static Result adminIndex() {
+		return ok(views.html.adminIndex.render(""));
+	}
+
+	public static Result adminSyncDb() {
+		synchronizeDB();
+		return ok(views.html.adminIndex.render("Datenbank synchronisiert!"));
 	}
 }

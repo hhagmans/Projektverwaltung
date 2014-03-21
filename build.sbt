@@ -8,4 +8,10 @@ libraryDependencies ++= Seq(
   cache
 )     
 
+libraryDependencies += javaJdbc
+
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.29"
+
+libraryDependencies += javaEbean
+
 play.Project.playJavaSettings
