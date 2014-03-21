@@ -94,7 +94,7 @@ public class Application extends Controller {
 
 	public static Result employeeOverview() {
 		List<Employee> allEmps = null;
-		allEmps = getAllEmployees();
+		allEmps = Ebean.find(Employee.class).findList();
 		return ok(views.html.employeeOverview.render(allEmps));
 	}
 
@@ -112,7 +112,7 @@ public class Application extends Controller {
 
 	public static Result employeeView(String id) {
 		Employee emp = null;
-		emp = getEmployee(id);
+		emp = Ebean.find(Employee.class, id);
 		return ok(views.html.employeeView.render(emp));
 	}
 
