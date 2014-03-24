@@ -6,6 +6,26 @@
 
 <h2>@message</h2>
 
-<a type="button" class="btn btn-primary" href="/admin/syncdb">Synchronize Employee Database</a>
+@helper.form(action=routes.Application.adminSyncDb()){
+<div class="panel panel-default">
+  <div class="panel-heading">Login</div>
+  <div class="panel-body"> 
+	<form role="form">
+	  <div class="form-group">
+		<label for="inputname">Name:</label>     
+		<input type='text' class="form-control" id="inputmail" name='name' />
+	  </div>
+	
+	  <div class="form-group">
+		<label for="inputpassword">Passwort:</label>   
+		<input type='password' class="form-control" id="inputpassword" name='password' />
+	  </div>
+	  
+	<button type="submit" name="myform" class="btn btn-primary">Synchronize Database</button>   
+
+	</div>
+</div>
+}
+
 
 }

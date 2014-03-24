@@ -1,5 +1,7 @@
 package controllers;
 
+import static play.data.Form.form;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -11,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import models.Employee;
+import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -20,12 +23,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class Application extends Controller {
 
-	public static List<Employee> getAllEmployees() {
+	public static List<Employee> getAllEmployees(final String loginName,
+			final String password) {
 		Authenticator.setDefault(new Authenticator() {
 
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("hendrikh", "".toCharArray());
+				return new PasswordAuthentication(loginName, password
+						.toCharArray());
 			}
 		});
 		URL url = null;
@@ -78,13 +83,18 @@ public class Application extends Controller {
 		}
 	}
 
-	public static void synchronizeDB() {
-		List<Employee> allEmps = getAllEmployees();
-		for (Employee employee : allEmps) {
-			if (Ebean.find(Employee.class, employee.uid) == null)
-				employee.save();
-			else if (Ebean.find(Employee.class, employee.uid).name != employee.name)
-				employee.update();
+	public static boolean synchronizeDB(String name, String password) {
+		List<Employee> allEmps = getAllEmployees(name, password);
+		if (!allEmps.isEmpty()) {
+			for (Employee employee : allEmps) {
+				if (Ebean.find(Employee.class, employee.uid) == null)
+					employee.save();
+				else if (Ebean.find(Employee.class, employee.uid).name != employee.name)
+					employee.update();
+			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -121,7 +131,15 @@ public class Application extends Controller {
 	}
 
 	public static Result adminSyncDb() {
-		synchronizeDB();
-		return ok(views.html.adminIndex.render("Datenbank synchronisiert!"));
+		DynamicForm bindedForm = form().bindFromRequest();
+		String name = bindedForm.get("name");
+		String password = bindedForm.get("password");
+		boolean success = synchronizeDB(name, password);
+		String message;
+		if (success)
+			message = "Datenbank synchronisiert!";
+		else
+			message = "Logindaten falsch!";
+		return ok(views.html.adminIndex.render(message));
 	}
 }
