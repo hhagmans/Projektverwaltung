@@ -129,7 +129,7 @@ public class Application extends Controller {
 
 	public static Result projectView(int id) {
 		Project project = Ebean.find(Project.class, id);
-		return ok(views.html.projectView.render());
+		return ok(views.html.projectView.render(project));
 	}
 
 	public static Result projectAdd() {
