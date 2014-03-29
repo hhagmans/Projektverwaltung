@@ -1,0 +1,56 @@
+@main("Add Project")("")("active")("")("") {
+ <script>
+$(function() {
+$( "#startDateInput" ).datepicker();
+$( "#endDateInput" ).datepicker();
+});
+</script>
+
+<h1>Projekt</h1>
+
+@helper.form(action=routes.Application.projectAddSave()){
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Project</h3>
+  </div>
+  <div class="panel-body">
+	<form role="form">
+	  <div class="form-group">
+	    <label for="nameInput">Name</label>
+	    <input type="text" class="form-control" id="nameInput" name="name">
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="descriptionInput">Description</label>
+	    <textarea class="form-control" id="descriptionInput" rows="5" name ="description"></textarea>
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="wikiInput">Wikilink</label>
+	    <input type="text" class="form-control" id="wikiInput" name="wiki">
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="startDateInput">Startdate</label>
+	    <input type="text" class="form-control" id="startDateInput" name="startdate">
+	  </div>
+	  
+	  <div class="form-group">
+	    <label for="endDateInput">Enddate</label>
+	    <input type="text" class="form-control" id="endDateInput" name="enddate">
+	  </div>
+	  
+	  <div class="checkbox">
+	    <label>
+	      <input type="checkbox" name="active"> Active
+	    </label>
+	  </div>
+	  
+	
+	  <button type="submit" class="btn btn-success" name="projectForm">Save</button>
+	  <a type="button" class="btn btn-primary" href="/admin">Back</a>
+	</form>
+  </div>
+</div>
+}
+}

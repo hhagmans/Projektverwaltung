@@ -10,11 +10,13 @@ create table employee (
 ;
 
 create table project (
-  id                        varchar(255) not null,
+  id                        integer auto_increment not null,
   name                      varchar(255),
   description               varchar(255),
   wiki_link                 varchar(255),
   active                    tinyint(1) default 0,
+  start_date                datetime,
+  end_date                  datetime,
   constraint pk_project primary key (id))
 ;
 

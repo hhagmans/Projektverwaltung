@@ -1,11 +1,11 @@
+@(allProjects: List[Project])
+
 @main("Projektverwaltung Home")("")("active")("")("") {
 
 <h1>Projects</h1>
 
 <ul>
-	<li> <a href="/projects/1"> Umweltbundesamt ICS</a> 01.09.2009-?</li>
-	<li> <a href="/projects/2"> E-POSTBRIEF Architektur</a> 12.02.2013-?</li>
-	<li> <a href="/projects/3"> Groupon Payment & Checkout</a> 02.04.2012-?</li>
-</ul>
-
+@for(project <- allProjects) {
+  <li> <a href="/projects/@project.id"> @project.name</a> @project.startDate.format("dd.MM.yyyy")-@project.endDate.format("dd.MM.yyyy")</li>} 
 }
+</ul>

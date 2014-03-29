@@ -11,11 +11,18 @@ GET     /projects                           controllers.Application.projectOverv
 # User Overview
 GET     /employee                           controllers.Application.employeeOverview()
 
+# Project Add
+GET     /projects/add                           controllers.Application.projectAdd()
+
 # Project View
-GET     /projects/1                           controllers.Application.projectView()
+GET     /projects/:id                            controllers.Application.projectView(id: Int)
 
 # Employee View
 GET     /employee/:id                           controllers.Application.employeeView(id: String)
+
+# Project Add and Save
+GET     /projects/add/save                           controllers.Application.projectAddSave()
+
 
 # Project Edit
 GET     /projects/1/edit                           controllers.Application.projectEdit()

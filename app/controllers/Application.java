@@ -8,11 +8,15 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import models.Employee;
+import models.Project;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -83,6 +87,19 @@ public class Application extends Controller {
 		}
 	}
 
+	public static boolean createProject(String name, String description,
+			URL wikilink, boolean active, Date startDate, Date endDate) {
+		try {
+			Project project = new Project(name, description, wikilink, active,
+					startDate, endDate);
+			project.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
 	public static boolean synchronizeDB(String name, String password) {
 		List<Employee> allEmps = getAllEmployees(name, password);
 		if (!allEmps.isEmpty()) {
@@ -99,7 +116,9 @@ public class Application extends Controller {
 	}
 
 	public static Result projectOverview() {
-		return ok(views.html.projectOverview.render());
+		List<Project> allProjects = null;
+		allProjects = Ebean.find(Project.class).findList();
+		return ok(views.html.projectOverview.render(allProjects));
 	}
 
 	public static Result employeeOverview() {
@@ -108,8 +127,54 @@ public class Application extends Controller {
 		return ok(views.html.employeeOverview.render(allEmps));
 	}
 
-	public static Result projectView() {
+	public static Result projectView(int id) {
+		Project project = Ebean.find(Project.class, id);
 		return ok(views.html.projectView.render());
+	}
+
+	public static Result projectAdd() {
+		return ok(views.html.projectAdd.render());
+	}
+
+	public static Result projectAddSave() {
+		DynamicForm bindedForm = form().bindFromRequest();
+		String name = bindedForm.get("name");
+		String description = bindedForm.get("description");
+		URL wikilink;
+		try {
+			wikilink = new URL(bindedForm.get("wiki"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return badRequest(views.html.adminIndex
+					.render("URL fehlerhaft, Projekt nicht erstellt."));
+		}
+		boolean active;
+		if (bindedForm.get("active") == null)
+			active = false;
+		else
+			active = true;
+
+		Date startDate;
+		Date endDate;
+		try {
+			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("startdate"));
+
+			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("enddate"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return badRequest(views.html.adminIndex
+					.render("Datum fehlerhaft, Projekt nicht erstellt."));
+		}
+		boolean success = createProject(name, description, wikilink, active,
+				startDate, endDate);
+		if (success)
+			return ok(views.html.adminIndex.render("Projekt erstellt!"));
+		else
+			return badRequest(views.html.adminIndex
+					.render("Daten fehlerhaft, Projekt nicht erstellt."));
+
 	}
 
 	public static Result projectEdit() {
