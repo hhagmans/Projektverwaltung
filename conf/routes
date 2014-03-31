@@ -11,7 +11,7 @@ GET     /projects                           controllers.Application.projectOverv
 # User Overview
 GET     /employee                           controllers.Application.employeeOverview()
 
-# Project Add
+# Project Add View
 GET     /projects/add                           controllers.Application.projectAdd()
 
 # Project View
@@ -21,11 +21,17 @@ GET     /projects/:id                            controllers.Application.project
 GET     /employee/:id                           controllers.Application.employeeView(id: String)
 
 # Project Add and Save
-GET     /projects/add/save                           controllers.Application.projectAddSave()
+POST     /projects                          controllers.Application.projectAddSave()
 
 
 # Project Edit
 GET     /projects/1/edit                           controllers.Application.projectEdit()
+
+# Project Edit
+#PUT    /projects/1/                           controllers.Application.projectEditSave()
+
+# Delete Project
+DELETE /projects/:id						controllers.Application.deleteProject(id: Int)
 
 # Add User in Project Edit
 GET     /projects/1/addemployee                           controllers.Application.projectEditAddEmployee()
@@ -41,9 +47,6 @@ GET     /admin/syncdb                           controllers.Application.adminSyn
 
 # Delete Employee in Project Edit
 #POST     /projects/1/deleteEmployee                          controllers.Application.projectEditDeleteEmployee()
-
-# Project Save
-#POST     /projects/1/save                           controllers.Application.projectSave()
 
 
 # Map static resources from the /public folder to the /assets URL path

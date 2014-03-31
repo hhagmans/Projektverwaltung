@@ -34,6 +34,7 @@ public class Application extends Controller {
 	 */
 	public static List<Employee> getAllEmployees(final String loginName,
 			final String password) {
+		// Authentifizierung am innoQ Server
 		Authenticator.setDefault(new Authenticator() {
 
 			@Override
@@ -58,10 +59,10 @@ public class Application extends Controller {
 
 			while (iter.hasNext()) {
 				JsonNode currentNode = iter.next();
-				String uid = currentNode.get("uid").textValue();
+				String id = currentNode.get("uid").textValue();
 				String name = currentNode.get("displayName").textValue();
-				if (!uid.equals("admin"))
-					list.add(new Employee(uid, name));
+				if (!id.equals("admin"))
+					list.add(new Employee(id, name));
 			}
 			return list;
 		} catch (IOException e) {
@@ -73,14 +74,14 @@ public class Application extends Controller {
 	/**
 	 * Gibt einen User aus der LiQID Applikation zurück.
 	 * 
-	 * @param uid
-	 * @return Employee mit uid
+	 * @param id
+	 * @return Employee mit id
 	 */
-	public static Employee getEmployee(String uid) {
+	public static Employee getEmployee(String id) {
 
 		URL url = null;
 		try {
-			url = new URL("https://intern.innoq.com/liqid/users/" + uid
+			url = new URL("https://intern.innoq.com/liqid/users/" + id
 					+ ".json");
 		} catch (MalformedURLException e1) {
 			e1.printStackTrace();
@@ -90,7 +91,7 @@ public class Application extends Controller {
 			is = url.openStream();
 			JsonNode json = Json.parse(is);
 			String name = json.get("displayName").textValue();
-			return new Employee(uid, name);
+			return new Employee(id, name);
 		} catch (IOException e) {
 			e.printStackTrace();
 
@@ -134,9 +135,9 @@ public class Application extends Controller {
 		List<Employee> allEmps = getAllEmployees(name, password);
 		if (!allEmps.isEmpty()) {
 			for (Employee employee : allEmps) {
-				if (Ebean.find(Employee.class, employee.uid) == null)
+				if (Ebean.find(Employee.class, employee.id) == null)
 					employee.save();
-				else if (Ebean.find(Employee.class, employee.uid).name != employee.name)
+				else if (Ebean.find(Employee.class, employee.id).name != employee.name)
 					employee.update();
 			}
 			return true;
@@ -234,6 +235,14 @@ public class Application extends Controller {
 			return badRequest(views.html.adminIndex
 					.render("Daten fehlerhaft, Projekt nicht erstellt."));
 
+	}
+
+	public static Result deleteProject(long id) {
+		Project project = Ebean.find(Project.class, id);
+		project.delete();
+		List<Project> allProjects = null;
+		allProjects = Ebean.find(Project.class).findList();
+		return ok(views.html.projectOverview.render(allProjects));
 	}
 
 	/**
