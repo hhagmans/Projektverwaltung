@@ -2,9 +2,15 @@ import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.contentType;
 
+import java.util.List;
+
+import models.Project;
+
 import org.junit.Test;
 
 import play.mvc.Content;
+
+import com.avaje.ebean.Ebean;
 
 /**
  * 
@@ -22,7 +28,9 @@ public class ApplicationTest {
 
 	@Test
 	public void renderTemplate() {
-		Content html = views.html.projectOverview.render();
+		List<Project> allProjects = null;
+		allProjects = Ebean.find(Project.class).findList();
+		Content html = views.html.projectOverview.render(allProjects);
 		assertThat(contentType(html)).isEqualTo("text/html");
 		assertThat(contentAsString(html)).contains("Projects");
 	}

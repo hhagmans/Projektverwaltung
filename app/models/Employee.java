@@ -5,6 +5,12 @@ import javax.persistence.Id;
 
 import play.db.ebean.Model;
 
+/**
+ * Beschreibt einen Mitarbeiter der Firma
+ * 
+ * @author hendrikh
+ * 
+ */
 @Entity
 public class Employee extends Model {
 

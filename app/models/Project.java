@@ -8,6 +8,12 @@ import javax.persistence.Id;
 
 import play.db.ebean.Model;
 
+/**
+ * Beschreibt ein Projekt der Firma
+ * 
+ * @author hendrikh
+ * 
+ */
 @Entity
 public class Project extends Model {
 

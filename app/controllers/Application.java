@@ -27,6 +27,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class Application extends Controller {
 
+	/**
+	 * Erstellt eine Liste von Employees aus der LiQID Applikation
+	 * 
+	 * @return Liste von Employees
+	 */
 	public static List<Employee> getAllEmployees(final String loginName,
 			final String password) {
 		Authenticator.setDefault(new Authenticator() {
@@ -65,6 +70,12 @@ public class Application extends Controller {
 		}
 	}
 
+	/**
+	 * Gibt einen User aus der LiQID Applikation zurück.
+	 * 
+	 * @param uid
+	 * @return Employee mit uid
+	 */
 	public static Employee getEmployee(String uid) {
 
 		URL url = null;
@@ -87,6 +98,17 @@ public class Application extends Controller {
 		}
 	}
 
+	/**
+	 * Erstellt ein Projekt mit den gegebenen Parametern
+	 * 
+	 * @param name
+	 * @param description
+	 * @param wikilink
+	 * @param active
+	 * @param startDate
+	 * @param endDate
+	 * @return true wenn Erstellung erfolgreich, sonst false
+	 */
 	public static boolean createProject(String name, String description,
 			URL wikilink, boolean active, Date startDate, Date endDate) {
 		try {
@@ -100,6 +122,14 @@ public class Application extends Controller {
 		return true;
 	}
 
+	/**
+	 * Synchronisiert die Employee- Datenbank mit der Datenbank der LiQID
+	 * Applikation
+	 * 
+	 * @param name
+	 * @param password
+	 * @return true wenn erfolgreich, sonst false
+	 */
 	public static boolean synchronizeDB(String name, String password) {
 		List<Employee> allEmps = getAllEmployees(name, password);
 		if (!allEmps.isEmpty()) {
@@ -115,27 +145,56 @@ public class Application extends Controller {
 		}
 	}
 
+	/**
+	 * Returned die Projektübersicht mit allen aktuellen Projekten
+	 * 
+	 * @return Projektübersicht
+	 */
 	public static Result projectOverview() {
 		List<Project> allProjects = null;
 		allProjects = Ebean.find(Project.class).findList();
 		return ok(views.html.projectOverview.render(allProjects));
 	}
 
+	/**
+	 * Returned die Employeeübersicht mit allen Emplyoees
+	 * 
+	 * @return Employeeübersicht
+	 */
 	public static Result employeeOverview() {
 		List<Employee> allEmps = null;
 		allEmps = Ebean.find(Employee.class).findList();
 		return ok(views.html.employeeOverview.render(allEmps));
 	}
 
+	/**
+	 * Returned die View des Projekts mit der gegebenen ID.
+	 * 
+	 * @param id
+	 *            id des Projekts
+	 * @return
+	 */
 	public static Result projectView(int id) {
 		Project project = Ebean.find(Project.class, id);
 		return ok(views.html.projectView.render(project));
 	}
 
+	/**
+	 * Returned die View, auf der Projektdaten zum Erstellen eines Projektes
+	 * angegeben werden können.
+	 * 
+	 * @return Projekterstellview
+	 */
 	public static Result projectAdd() {
 		return ok(views.html.projectAdd.render());
 	}
 
+	/**
+	 * Validiert die Form im Request, erstellt ggf. ein Projekt und returned die
+	 * Adminview
+	 * 
+	 * @return Adminview
+	 */
 	public static Result projectAddSave() {
 		DynamicForm bindedForm = form().bindFromRequest();
 		String name = bindedForm.get("name");
@@ -177,24 +236,52 @@ public class Application extends Controller {
 
 	}
 
+	/**
+	 * Returned die View zum Projectedit
+	 * 
+	 * @return Projectedit
+	 */
 	public static Result projectEdit() {
 		return ok(views.html.projectEdit.render());
 	}
 
+	/**
+	 * Returned die View um einem Projekt einen Employee zuzufügen
+	 * 
+	 * @return
+	 */
 	public static Result projectEditAddEmployee() {
 		return ok(views.html.projectEditAddUser.render());
 	}
 
+	/**
+	 * Returned die Employeeview mit allen Daten des Employees
+	 * 
+	 * @param id
+	 *            id des Employees
+	 * @return
+	 */
 	public static Result employeeView(String id) {
 		Employee emp = null;
 		emp = Ebean.find(Employee.class, id);
 		return ok(views.html.employeeView.render(emp));
 	}
 
+	/**
+	 * Returned die View des Adminindex
+	 * 
+	 * @return Adminview
+	 */
 	public static Result adminIndex() {
 		return ok(views.html.adminIndex.render(""));
 	}
 
+	/**
+	 * Synced die Employeedatenbank mit der Datenbank der LiQID Applikation und
+	 * returned dann die Adminview
+	 * 
+	 * @return Adminview
+	 */
 	public static Result adminSyncDb() {
 		DynamicForm bindedForm = form().bindFromRequest();
 		String name = bindedForm.get("name");
