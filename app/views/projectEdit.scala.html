@@ -11,7 +11,6 @@
     <h3 class="panel-title">Project</h3>
   </div>
   <div class="panel-body">
-	<form role="form">
 	  <div class="form-group">
 	    <label for="nameInput">Name</label>
 	    <input type="text" class="form-control" id="nameInput" value="@project.name" name="name">
@@ -39,7 +38,8 @@
 	  
 	  <div class="form-group">
 	  	<label for="principalInput">Principal</label>
-		<select class="form-control" id="newEmployeeInput" name ="principal">
+		<select class="form-control" id="newEmployeeInput" name="principal">
+		<option value="">Select new Principal</option>
  		@for(emp <- project.getEmployees()) { 
  			<option>@emp.name (@emp.id)</option> 
  		} 
@@ -53,31 +53,30 @@
 	  </div>
 	  
 	
-	  <button type="submit" class="btn btn-success" href="/projects/1/save">Save</button>
-	  <a type="button" class="btn btn-primary" href="/projects/1">Back</a>
-	</form>
+	  <button type="submit" class="btn btn-success" href="/projects/@project.id/save">Save</button>
+	  <a type="button" class="btn btn-primary" href="/projects/@project.id">Back</a>
 	}
   </div>
 </div>
+
+@helper.form(action=routes.ProjectController.projectEditEditEmployee(project.id)){
 
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Employees</h3>
   </div>
   <div class="panel-body">
-	<form role="form">
 	
-	<select class="form-control" id="newUEmployeeInput">
+	<select class="form-control" id="newEmployeeInput" name="selectedEmp">
 	 	@for(emp <- project.getEmployees()) { 
  			<option>@emp.name (@emp.id)</option> 
  		} 
 	</select>
-	  
-	  <button type="button" class="btn btn-primary" href="/projects/@project.id/deleteemployee" style="margin-top:10px">Delete Selected Employee from Project</button> <br>
-	  
-	  <a type="button" class="btn btn-primary" href="/projects/@project.id/addemployee" style="margin-top:10px">Add an Employee to Project</a>
 	
-	</form>
+	  <button type="submit" class="btn btn-warning" href="/projects/@project.id/editemployee" style="margin-top:10px">Edit Selected Employee in Project</button> <br>	  
+	  }
+	  <a type="button" class="btn btn-primary" href="/projects/@project.id/addemployee" style="margin-top:10px">Add Employee to Project</a>
+	
 	</div>
 </div>
 

@@ -35,20 +35,24 @@ DELETE /projects/:id						controllers.ProjectController.deleteProject(id: Int)
 # Add User in Project Edit
 GET     /projects/:id/addemployee                           controllers.ProjectController.projectEditAddEmployee(id: Int)
 
-# Add User in Project Edit SAve
+# Add User in Project Edit Save
 POST     /projects/:id/addemployee                           controllers.ProjectController.projectEditAddEmployeeSave(id: Int)
+
+# Delete Employee in Project Edit
+POST     /projects/:id/deleteEmployee                          controllers.ProjectController.projectEditDeleteEmployee(id: Int)
+
+# Edit User in Project Edit
+GET     /projects/:id/editemployee                           controllers.ProjectController.projectEditEditEmployee(id: Int)
+
+# Edit ans Save User in Project Edit
+POST    /projects/:id/editemployee                           controllers.ProjectController.projectEditEditEmployeeSave(id: Int)
+
 
 # Admin Index
 GET     /admin                           controllers.AdminController.adminIndex()
 
 # Sync Database in Admin View
 GET     /admin/syncdb                           controllers.AdminController.adminSyncDb()
-
-# Add Employee in Project Edit save
-#POST     /projects/1/adduser                           controllers.Application.projectEditAddEmployeeSave()
-
-# Delete Employee in Project Edit
-#POST     /projects/1/deleteEmployee                          controllers.Application.projectEditDeleteEmployee()
 
 
 # Map static resources from the /public folder to the /assets URL path

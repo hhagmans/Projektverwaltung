@@ -2,7 +2,7 @@
 
 @main("Projekt")("")("active")("")("") {
 
-<h1>@project.name @if(project.active) {(active)} else {(inactive)}</h1>
+<h1>@project.name @if(project.active) {(active)} else {(inactive)} <small> @project.startDate.format("dd.MM.yyyy")-@project.endDate.format("dd.MM.yyyy")</small> </h1>
 <a type="button" class="btn btn-warning" href="/projects/@project.id/edit" style="margin-bottom:10px">Edit</a>
 <a type="button" class="btn btn-danger" href="/projects" onclick="del('/projects/@project.id')" style="margin-bottom:10px">Delete</a>
 

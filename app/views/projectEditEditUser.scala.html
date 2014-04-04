@@ -1,0 +1,33 @@
+@(project: Project, association: Project_Employee)
+
+@main("Edit Employee in Project")("")("active")("")("") {
+
+<h1>@association.getEmployee().name</h1>
+
+  @helper.form(action=routes.ProjectController.projectEditEditEmployeeSave(project.id)){
+  <div class="panel panel-default">
+  <div class="panel-heading">Edit @(association.getEmployee().name)s Zeiten in @project.name</div>
+	  <div class="panel-body">
+	  
+	  	  <input type="hidden" id="associationInput" name="emp" value="@association.getEmployee().name (@association.getEmployee.id)">
+	  
+		  <label for="startDateInput">Startdate</label>
+		  <input type="text" class="form-control" id="startDateInput" name="startdate" value="@association.startDate.format("MM/dd/yyyy")">
+		  
+		  <label for="endDateInput">Enddate</label>
+		  <input type="text" class="form-control" id="endDateInput" name="enddate" value="@association.endDate.format("MM/dd/yyyy")">
+	 
+	  	  <button type="submit" class="btn btn-success" href="/projects/@project.id/editemployee" style="margin-top:10px">Save</button>
+	  }
+	  @helper.form(action=routes.ProjectController.projectEditDeleteEmployee(project.id)){
+	  	<input type="hidden" id="selectedEmpInput" name="selectedEmp" value="@association.getEmployee().name (@association.getEmployee.id)">
+	  
+	  	<button type="submit" class="btn btn-danger" href="/projects/@project.id/deleteemployee" style="margin-top:10px">Delete Employee from Project</button>  
+	 	<a type="button" class="btn btn-primary" href="/projects/@project.id/edit" style="margin-top:10px">Back</a>
+	  }
+		</div>
+	</div>
+
+
+
+}

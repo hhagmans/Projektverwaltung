@@ -128,6 +128,12 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
+			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
+					|| !bindedForm.get("enddate").matches(
+							"\\d{2}/\\d{2}/\\d{4}")) {
+				throw new ParseException("Does not match the correct regex.",
+						370);
+			}
 			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
 					.get("startdate"));
 
@@ -156,6 +162,10 @@ public class ProjectController extends Controller {
 	 */
 	public static Result deleteProject(long id) {
 		Project project = Ebean.find(Project.class, id);
+		List<Project_Employee> associations = project.getEmployeeAssociations();
+		for (Project_Employee project_Employee : associations) {
+			project_Employee.delete();
+		}
 		project.delete();
 		List<Project> allProjects = null;
 		allProjects = Ebean.find(Project.class).findList();
@@ -193,6 +203,19 @@ public class ProjectController extends Controller {
 		String[] splittedValue = formValue.split("\\(");
 		splittedValue = splittedValue[1].split("\\)");
 		return Ebean.find(Employee.class, splittedValue[0]);
+	}
+
+	public static Project_Employee getAssociation(Project project, Employee emp) {
+		Project_Employee association = null;
+		List<Project_Employee> associations = project.getEmployeeAssociations();
+		Iterator<Project_Employee> iter = associations.iterator();
+		while (iter.hasNext()) {
+			Project_Employee currentAsso = iter.next();
+			if (currentAsso.getEmployee().equals(emp)) {
+				association = currentAsso;
+			}
+		}
+		return association;
 	}
 
 	/**
@@ -238,6 +261,12 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
+			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
+					|| !bindedForm.get("enddate").matches(
+							"\\d{2}/\\d{2}/\\d{4}")) {
+				throw new ParseException("Does not match the correct regex.",
+						370);
+			}
 			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
 					.get("startdate"));
 
@@ -252,9 +281,12 @@ public class ProjectController extends Controller {
 		project.startDate = startDate;
 		project.endDate = endDate;
 
-		Employee principal = getEmployeeFromForm(bindedForm.get("principal"));
+		if (bindedForm.get("principal") != "") {
+			Employee principal = getEmployeeFromForm(bindedForm
+					.get("principal"));
 
-		project.principalConsultant = principal;
+			project.principalConsultant = principal;
+		}
 
 		project.save();
 
@@ -279,6 +311,12 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
+			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
+					|| !bindedForm.get("enddate").matches(
+							"\\d{2}/\\d{2}/\\d{4}")) {
+				throw new ParseException("Does not match the correct regex.",
+						370);
+			}
 			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
 					.get("startdate"));
 
@@ -302,4 +340,79 @@ public class ProjectController extends Controller {
 					"Beim Hinzufügen des Users ist ein  Problem aufgetreten."));
 	}
 
+	/**
+	 * Lösche Employee aus POST in Projectk mit übergebener id.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public static Result projectEditDeleteEmployee(long id) {
+		DynamicForm bindedForm = form().bindFromRequest();
+		Project project = Ebean.find(Project.class, id);
+
+		Employee emp = getEmployeeFromForm(bindedForm.get("selectedEmp"));
+
+		List<Project_Employee> associations = project.getEmployeeAssociations();
+
+		Iterator<Project_Employee> iter = associations.iterator();
+
+		while (iter.hasNext()) {
+			Project_Employee asso = iter.next();
+			if (asso.getEmployee().equals(emp)) {
+				asso.delete();
+				break;
+			}
+		}
+
+		if (emp.equals(project.principalConsultant)) {
+			project.principalConsultant = null;
+			project.save();
+		}
+
+		return ok(views.html.projectEdit.render(project,
+				"Der Mitarbeiter wurde erfolgreich aus dem Projekt gelöscht!"));
+	}
+
+	public static Result projectEditEditEmployee(long id) {
+		DynamicForm bindedForm = form().bindFromRequest();
+		Project project = Ebean.find(Project.class, id);
+		Employee emp = getEmployeeFromForm(bindedForm.get("selectedEmp"));
+		Project_Employee association = getAssociation(project, emp);
+		return ok(views.html.projectEditEditUser.render(project, association));
+	}
+
+	public static Result projectEditEditEmployeeSave(long id) {
+		DynamicForm bindedForm = form().bindFromRequest();
+		Project project = Ebean.find(Project.class, id);
+
+		Date startDate;
+		Date endDate;
+		try {
+			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
+					|| !bindedForm.get("enddate").matches(
+							"\\d{2}/\\d{2}/\\d{4}")) {
+				throw new ParseException("Does not match the correct regex.",
+						370);
+			}
+			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("startdate"));
+
+			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("enddate"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return badRequest(views.html.projectEdit.render(project,
+					"Datum fehlerhaft, Employee nicht geupdated."));
+		}
+
+		Project_Employee association = getAssociation(project,
+				getEmployeeFromForm(bindedForm.get("emp")));
+
+		association.startDate = startDate;
+		association.endDate = endDate;
+		association.save();
+
+		return ok(views.html.projectEdit.render(project,
+				"Employee erfolgreich geupdated!"));
+	}
 }
