@@ -205,6 +205,13 @@ public class ProjectController extends Controller {
 		return ok(views.html.projectEdit.render(project, ""));
 	}
 
+	/**
+	 * Speichert die im POST übergebenen Attribute im Projekt mit der
+	 * übergebenen id
+	 * 
+	 * @param id
+	 * @return Die Projektsicht des Projekts mit der übergebenen id
+	 */
 	public static Result projectEditSave(long id) {
 		Project project = Ebean.find(Project.class, id);
 		DynamicForm bindedForm = form().bindFromRequest();
@@ -226,6 +233,8 @@ public class ProjectController extends Controller {
 		else
 			active = true;
 
+		project.active = active;
+
 		Date startDate;
 		Date endDate;
 		try {
@@ -239,7 +248,15 @@ public class ProjectController extends Controller {
 			return badRequest(views.html.projectEdit.render(project,
 					"Datum fehlerhaft, Projekt nicht geupdated."));
 		}
+
+		project.startDate = startDate;
+		project.endDate = endDate;
+
 		Employee principal = getEmployeeFromForm(bindedForm.get("principal"));
+
+		project.principalConsultant = principal;
+
+		project.save();
 
 		return ok(views.html.projectView.render(project,
 				project.getEmployeeAssociations()));

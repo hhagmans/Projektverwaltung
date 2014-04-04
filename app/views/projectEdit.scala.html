@@ -48,7 +48,7 @@
 	  
 	  <div class="checkbox">
 	    <label>
-	      <input type="checkbox" checked="@if(project.active) {checked} else {}"> Active
+	      <input type="checkbox" name="active" @if(project.active) {checked="checked"} else {}> Active
 	    </label>
 	  </div>
 	  
@@ -73,9 +73,9 @@
  		} 
 	</select>
 	  
-	  <button type="button" class="btn btn-primary" href="/projects/1/deleteemployee" style="margin-top:10px">Delete Selected Employee from Project</button> <br>
+	  <button type="button" class="btn btn-primary" href="/projects/@project.id/deleteemployee" style="margin-top:10px">Delete Selected Employee from Project</button> <br>
 	  
-	  <a type="button" class="btn btn-primary" href="/projects/1/addemployee" style="margin-top:10px">Add an Employee to Project</a>
+	  <a type="button" class="btn btn-primary" href="/projects/@project.id/addemployee" style="margin-top:10px">Add an Employee to Project</a>
 	
 	</form>
 	</div>

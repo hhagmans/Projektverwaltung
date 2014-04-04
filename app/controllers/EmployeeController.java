@@ -3,6 +3,7 @@ package controllers;
 import java.util.List;
 
 import models.Employee;
+import models.Project_Employee;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -31,7 +32,8 @@ public class EmployeeController extends Controller {
 	public static Result employeeView(String id) {
 		Employee emp = null;
 		emp = Ebean.find(Employee.class, id);
-		return ok(views.html.employeeView.render(emp));
+		List<Project_Employee> associations = emp.getProjectAssociations();
+		return ok(views.html.employeeView.render(emp, associations));
 	}
 
 }

@@ -14,7 +14,9 @@
   	@project.description
   </div>
   <div class="panel-footer">
-  	<a href="employee/2"> Christian Oberschulte (Principal)</a> <br>
+  @if(project.principalConsultant != null) {
+  	<a href="/employee/@project.principalConsultant.id"> @project.principalConsultant.name (Principal)</a> <br>
+  	} else { Kein Principal gewählt <br>}
   	<a href="@project.wikiLink">Wiki</a>
   </div>
 </div>
