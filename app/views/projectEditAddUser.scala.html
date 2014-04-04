@@ -4,7 +4,7 @@
 
 <h1>@project.name</h1>
 
-<div class="alert alert-danger"><h3>@message</h3></div>
+@if(message != "") {<div class="alert alert-danger"><h3>@message</h3></div>}
 
   @helper.form(action=routes.ProjectController.projectEditAddEmployeeSave(project.id)){
   <div class="panel panel-default">
