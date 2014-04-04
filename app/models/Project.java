@@ -11,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import play.db.ebean.Model;
 
@@ -41,9 +40,6 @@ public class Project extends Model {
 	@JoinColumn(name = "principalConsultant")
 	public Employee principalConsultant;
 
-	@OneToMany(mappedBy = "project")
-	public List<Project_Employee> employees;
-
 	public Project(String name, String description, URL wikiLink,
 			boolean active, Date startDate, Date endDate) {
 		this.name = name;
@@ -53,7 +49,6 @@ public class Project extends Model {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.principalConsultant = null;
-		this.employees = new ArrayList<Project_Employee>();
 	}
 
 	public Project(String name, String description, URL wikiLink,
@@ -66,7 +61,6 @@ public class Project extends Model {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.principalConsultant = principalConsultant;
-		this.employees = new ArrayList<Project_Employee>();
 	}
 
 	/**
@@ -81,13 +75,6 @@ public class Project extends Model {
 		association.setProject(this);
 		association.startDate = startDate;
 		association.endDate = endDate;
-
-		this.employees.add(association);
-		this.save();
-
-		// Association Objekt auch im Employee verlinken
-		emp.projects.add(association);
-		emp.save();
 
 		association.save();
 	}

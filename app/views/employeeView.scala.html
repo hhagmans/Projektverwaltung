@@ -11,7 +11,7 @@
   <div class="panel-body">
   	<ul>
   	@for(asso <- associations) { 
-  		<li> <a href="/projects/@asso.project_id"> @asso.getProject().name</a> @asso.startDate.format("dd.MM.yyyy")-@asso.endDate.format("dd.MM.yyyy")</li>
+  		<li> <a href="/projects/@asso.project_id"> @asso.getProject().name</a> @if(asso.startDate == null) {?} else {@asso.startDate.format("dd.MM.yyyy")}-@if(asso.endDate == null) {?} else {@asso.endDate.format("dd.MM.yyyy")}</li>
   	}
 	</ul>
   </div>

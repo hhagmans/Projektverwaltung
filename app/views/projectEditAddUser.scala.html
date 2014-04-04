@@ -12,8 +12,8 @@
 	  
   	  <label for="employeeGroup">Current Employees</label>
 	  <ul class="list-group" id="employeeGroup">
-	  @for(emp <- project.employees) { 
-	    <li class="list-group-item list-group-item-info">@emp.employee.name (@emp.employee.id)</li>
+	  @for(emp <- project.getEmployees()) { 
+	    <li class="list-group-item list-group-item-info">@emp.name (@emp.id)</li>
 	    }
 	  </ul>
 	  

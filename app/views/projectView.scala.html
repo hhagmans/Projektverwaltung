@@ -2,7 +2,7 @@
 
 @main("Projekt")("")("active")("")("") {
 
-<h1>@project.name @if(project.active) {(active)} else {(inactive)} <small> @project.startDate.format("dd.MM.yyyy")-@project.endDate.format("dd.MM.yyyy")</small> </h1>
+<h1>@project.name @if(project.active) {(active)} else {(inactive)} <small> @if(project.startDate == null) {?} else {@project.startDate.format("dd.MM.yyyy")}-@if(project.endDate == null) {?} else {@project.endDate.format("dd.MM.yyyy")}</small> </h1>
 <a type="button" class="btn btn-warning" href="/projects/@project.id/edit" style="margin-bottom:10px">Edit</a>
 <a type="button" class="btn btn-danger" href="/projects" onclick="del('/projects/@project.id')" style="margin-bottom:10px">Delete</a>
 
@@ -28,7 +28,7 @@
   <div class="panel-body">
   	<ul>
   		@for(asso <- associations) { 
-  		<li> <a href="/employee/@asso.getEmployee.id"> @asso.getEmployee().name</a> @asso.startDate.format("dd.MM.yyyy")-@asso.endDate.format("dd.MM.yyyy")</li>
+  		<li> <a href="/employee/@asso.getEmployee.id"> @asso.getEmployee().name</a> @if(asso.startDate == null) {?} else {@asso.startDate.format("dd.MM.yyyy")}-@if(asso.endDate == null) {?} else {@asso.endDate.format("dd.MM.yyyy")}</li>
 		 	}
 	</ul>
   </div>

@@ -28,12 +28,12 @@
 	  
 	  <div class="form-group">
 	    <label for="startDateInput">Startdate</label>
-	    <input type="text" class="form-control" id="startDateInput" value="@project.startDate.format("MM/dd/yyyy")" name="startdate">
+	    <input type="text" class="form-control" id="startDateInput" value="@if(project.startDate == null) {""} else {@project.startDate.format("MM/dd/yyyy")"} name="startdate">
 	  </div>
 	  
 	  <div class="form-group">
 	    <label for="endDateInput">Enddate</label>
-	    <input type="text" class="form-control" id="endDateInput" value="@project.endDate.format("MM/dd/yyyy")" name="enddate">
+	    <input type="text" class="form-control" id="endDateInput" value="@if(project.endDate == null) {""} else {@project.endDate.format("MM/dd/yyyy")"} name="enddate">
 	  </div>
 	  
 	  <div class="form-group">
@@ -68,6 +68,7 @@
   <div class="panel-body">
 	
 	<select class="form-control" id="newEmployeeInput" name="selectedEmp">
+	<option value="">Select Employee</option>
 	 	@for(emp <- project.getEmployees()) { 
  			<option>@emp.name (@emp.id)</option> 
  		} 

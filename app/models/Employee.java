@@ -31,9 +31,6 @@ public class Employee extends Model {
 	@OneToMany(mappedBy = "principalConsultant")
 	public List<Project> principalConsultant;
 
-	@OneToMany(mappedBy = "employee")
-	public List<Project_Employee> projects;
-
 	public Employee(String id, String name) {
 		this.id = id;
 		this.name = name;

@@ -12,10 +12,10 @@
 	  	  <input type="hidden" id="associationInput" name="emp" value="@association.getEmployee().name (@association.getEmployee.id)">
 	  
 		  <label for="startDateInput">Startdate</label>
-		  <input type="text" class="form-control" id="startDateInput" name="startdate" value="@association.startDate.format("MM/dd/yyyy")">
+		  <input type="text" class="form-control" id="startDateInput" name="startdate" value="@if(association.startDate == null) {} else {@association.startDate.format("MM/dd/yyyy")}">
 		  
 		  <label for="endDateInput">Enddate</label>
-		  <input type="text" class="form-control" id="endDateInput" name="enddate" value="@association.endDate.format("MM/dd/yyyy")">
+		  <input type="text" class="form-control" id="endDateInput" name="enddate" value="@if(association.endDate == null) {} else {@association.endDate.format("MM/dd/yyyy")}">
 	 
 	  	  <button type="submit" class="btn btn-success" href="/projects/@project.id/editemployee" style="margin-top:10px">Save</button>
 	  }

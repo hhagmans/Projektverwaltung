@@ -6,6 +6,6 @@
 
 <ul>
 @for(project <- allProjects) {
-  <li> <a href="/projects/@project.id"> @project.name</a> @project.startDate.format("dd.MM.yyyy")-@project.endDate.format("dd.MM.yyyy")</li>} 
+  <li> <a href="/projects/@project.id"> @project.name</a> @if(project.startDate == null) {?} else {@project.startDate.format("dd.MM.yyyy")}-@if(project.endDate == null) {?} else {@project.endDate.format("dd.MM.yyyy")}</li>} 
 }
 </ul>

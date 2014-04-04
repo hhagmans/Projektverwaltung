@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.List;
 import models.Employee;
 import models.Project;
 import models.Project_Employee;
+import play.Logger;
 import play.data.DynamicForm;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -43,6 +43,21 @@ public class ProjectController extends Controller {
 			return false;
 		}
 		return true;
+	}
+
+	public static Date getDateFromForm(String formValue) throws ParseException {
+		Date date;
+		Logger.debug(formValue);
+		if (formValue == "") {
+			date = null;
+		} else {
+			if (!formValue.matches("\\d{2}/\\d{2}/\\d{4}")) {
+				throw new ParseException(
+						" Startdate does not match the correct regex.", 370);
+			}
+			date = new SimpleDateFormat("MM/dd/yyyy").parse(formValue);
+		}
+		return date;
 	}
 
 	/**
@@ -128,17 +143,9 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
-			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
-					|| !bindedForm.get("enddate").matches(
-							"\\d{2}/\\d{2}/\\d{4}")) {
-				throw new ParseException("Does not match the correct regex.",
-						370);
-			}
-			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("startdate"));
+			startDate = getDateFromForm(bindedForm.get("startdate"));
 
-			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("enddate"));
+			endDate = getDateFromForm(bindedForm.get("enddate"));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return badRequest(views.html.adminIndex
@@ -170,26 +177,6 @@ public class ProjectController extends Controller {
 		List<Project> allProjects = null;
 		allProjects = Ebean.find(Project.class).findList();
 		return ok(views.html.projectOverview.render(allProjects));
-	}
-
-	/**
-	 * Gibt alle Employees für das Projekt der übergebenen id zurück
-	 * 
-	 * @param projectid
-	 * @return
-	 */
-	public static List<Employee> getEmployeesforProject(long projectid) {
-		Project project = Ebean.find(Project.class, projectid);
-		List<Project_Employee> projemps = Ebean.find(Project_Employee.class)
-				.findList();
-		List<Employee> emps = new ArrayList();
-		Iterator<Project_Employee> iter = projemps.iterator();
-		while (iter.hasNext()) {
-			Project_Employee projemp = iter.next();
-			if (projemp.project.equals(project))
-				emps.add(projemp.employee);
-		}
-		return emps;
 	}
 
 	/**
@@ -261,17 +248,9 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
-			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
-					|| !bindedForm.get("enddate").matches(
-							"\\d{2}/\\d{2}/\\d{4}")) {
-				throw new ParseException("Does not match the correct regex.",
-						370);
-			}
-			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("startdate"));
+			startDate = getDateFromForm(bindedForm.get("startdate"));
 
-			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("enddate"));
+			endDate = getDateFromForm(bindedForm.get("enddate"));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return badRequest(views.html.projectEdit.render(project,
@@ -302,6 +281,7 @@ public class ProjectController extends Controller {
 	public static Result projectEditAddEmployee(long id) {
 		Project project = Ebean.find(Project.class, id);
 		List<Employee> allEmps = Ebean.find(Employee.class).findList();
+		allEmps.removeAll(project.getEmployees());
 		return ok(views.html.projectEditAddUser.render(project, allEmps, ""));
 	}
 
@@ -311,17 +291,9 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
-			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
-					|| !bindedForm.get("enddate").matches(
-							"\\d{2}/\\d{2}/\\d{4}")) {
-				throw new ParseException("Does not match the correct regex.",
-						370);
-			}
-			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("startdate"));
+			startDate = getDateFromForm(bindedForm.get("startdate"));
 
-			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("enddate"));
+			endDate = getDateFromForm(bindedForm.get("enddate"));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return badRequest(views.html.projectEditAddUser.render(project,
@@ -376,6 +348,10 @@ public class ProjectController extends Controller {
 	public static Result projectEditEditEmployee(long id) {
 		DynamicForm bindedForm = form().bindFromRequest();
 		Project project = Ebean.find(Project.class, id);
+		if (bindedForm.get("selectedEmp") == "") {
+			return badRequest(views.html.projectEdit.render(project,
+					"Kein Mitarbeiter ausgewählt!"));
+		}
 		Employee emp = getEmployeeFromForm(bindedForm.get("selectedEmp"));
 		Project_Employee association = getAssociation(project, emp);
 		return ok(views.html.projectEditEditUser.render(project, association));
@@ -388,17 +364,9 @@ public class ProjectController extends Controller {
 		Date startDate;
 		Date endDate;
 		try {
-			if (!bindedForm.get("startdate").matches("\\d{2}/\\d{2}/\\d{4}")
-					|| !bindedForm.get("enddate").matches(
-							"\\d{2}/\\d{2}/\\d{4}")) {
-				throw new ParseException("Does not match the correct regex.",
-						370);
-			}
-			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("startdate"));
+			startDate = getDateFromForm(bindedForm.get("startdate"));
 
-			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
-					.get("enddate"));
+			endDate = getDateFromForm(bindedForm.get("enddate"));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return badRequest(views.html.projectEdit.render(project,
