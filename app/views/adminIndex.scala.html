@@ -4,7 +4,7 @@
 
 <h1>Admin</h1>
 
-@if(message != "") {<div class="alert alert-danger"><h3>@message</h3></div>}
+@if(message != "") {<div class="alert alert-info"><h3>@message</h3></div>}
 
 @helper.form(action=routes.AdminController.adminSyncDb()){
 <div class="panel panel-default">
