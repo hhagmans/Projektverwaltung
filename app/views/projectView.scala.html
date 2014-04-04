@@ -1,4 +1,4 @@
-@(project: Project)
+@(project: Project, associations: List[Project_Employee])
 
 @main("Projekt")("")("active")("")("") {
 
@@ -21,12 +21,13 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Employee</h3>
+    <h3 class="panel-title">Employees</h3>
   </div>
   <div class="panel-body">
   	<ul>
-  		<li> <a href="/employee/1"> Hendrik Hagmans</a> 01.09.2009-?</li>
-		<li> <a href="/employee/2"> Christian Oberschulte</a> 12.02.2013-?</li>
+  		@for(asso <- associations) { 
+  		<li> <a href="/employee/@asso.getEmployee.id"> @asso.getEmployee().name</a> @asso.startDate.format("dd.MM.yyyy")-@asso.endDate.format("dd.MM.yyyy")</li>
+		 	}
 	</ul>
   </div>
 </div>

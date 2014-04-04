@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 
 import play.db.ebean.Model;
 
+import com.avaje.ebean.Ebean;
+
 @Entity
 @IdClass(ProjectAssociationId.class)
 public class Project_Employee extends Model {
@@ -41,6 +43,14 @@ public class Project_Employee extends Model {
 	public void setProject(Project project) {
 		this.project = project;
 		this.project_id = project.id;
+	}
+
+	public Employee getEmployee() {
+		return Ebean.find(Employee.class, this.employee_id);
+	}
+
+	public Project getProject() {
+		return Ebean.find(Project.class, this.project_id);
 	}
 
 }

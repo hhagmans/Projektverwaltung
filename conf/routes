@@ -3,47 +3,46 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.projectOverview()
+GET     /                           controllers.ProjectController.projectOverview()
 
 # Project Overview
-GET     /projects                           controllers.Application.projectOverview()
+GET     /projects                           controllers.ProjectController.projectOverview()
 
 # User Overview
-GET     /employee                           controllers.Application.employeeOverview()
+GET     /employee                           controllers.EmployeeController.employeeOverview()
 
 # Project Add View
-GET     /projects/add                           controllers.Application.projectAdd()
+GET     /projects/add                           controllers.ProjectController.projectAdd()
 
 # Project View
-GET     /projects/:id                            controllers.Application.projectView(id: Int)
+GET     /projects/:id                            controllers.ProjectController.projectView(id: Int)
 
 # Employee View
-GET     /employee/:id                           controllers.Application.employeeView(id: String)
+GET     /employee/:id                           controllers.EmployeeController.employeeView(id: String)
 
 # Project Add and Save
-POST     /projects                          controllers.Application.projectAddSave()
-
-
-# Project Edit
-GET     /projects/:id/edit                           controllers.Application.projectEdit(id: Int)
+POST     /projects                          controllers.ProjectController.projectAddSave()
 
 # Project Edit
-PUT    /projects/:id/                           controllers.Application.projectEditSave(id: Int)
+GET     /projects/:id/edit                           controllers.ProjectController.projectEdit(id: Int)
+
+# Project Edit
+POST    /projects/:id/                           controllers.ProjectController.projectEditSave(id: Int)
 
 # Delete Project
-DELETE /projects/:id						controllers.Application.deleteProject(id: Int)
+DELETE /projects/:id						controllers.ProjectController.deleteProject(id: Int)
 
 # Add User in Project Edit
-GET     /projects/:id/addemployee                           controllers.Application.projectEditAddEmployee(id: Int)
+GET     /projects/:id/addemployee                           controllers.ProjectController.projectEditAddEmployee(id: Int)
 
 # Add User in Project Edit SAve
-POST     /projects/:id/addemployee                           controllers.Application.projectEditAddEmployeeSave(id: Int)
+POST     /projects/:id/addemployee                           controllers.ProjectController.projectEditAddEmployeeSave(id: Int)
 
 # Admin Index
-GET     /admin                           controllers.Application.adminIndex()
+GET     /admin                           controllers.AdminController.adminIndex()
 
 # Sync Database in Admin View
-GET     /admin/syncdb                           controllers.Application.adminSyncDb()
+GET     /admin/syncdb                           controllers.AdminController.adminSyncDb()
 
 # Add Employee in Project Edit save
 #POST     /projects/1/adduser                           controllers.Application.projectEditAddEmployeeSave()
