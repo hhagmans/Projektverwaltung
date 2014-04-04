@@ -1,35 +1,41 @@
+@(project: Project, allEmps: List[Employee], message: String)
+
 @main("Add Employee")("")("active")("")("") {
 
 <h1>Umweltbundesamt ICS</h1>
-  
+
+<h2>@message</h2>
+  @helper.form(action=routes.Application.projectEditAddEmployeeSave(project.id)){
   <div class="panel panel-default">
   <div class="panel-heading">Add Employee</div>
 	  <div class="panel-body">
 	  
   	  <label for="employeeGroup">Current Employees</label>
 	  <ul class="list-group" id="employeeGroup">
-	    <li class="list-group-item list-group-item-info">Hendrik Hagmans (hendrikh)</li>
-	    <li class="list-group-item list-group-item-info">Christian Oberschulte (co)</li>
+	  @for(emp <- project.employees) { 
+	    <li class="list-group-item list-group-item-info">@emp.employee.name (@emp.employee.id)</li>
+	    }
 	  </ul>
 	  
 	  <form role="form">
 		  <label for="newEmployeeInput"> New Employee</label>
-		  <select class="form-control" id="newEmployeeInput">
-		 	<option>Hendrik Hagmans (hendrikh)</option>
-		  	<option>Christian Oberschulte (co)</option>
-		  	<option>Oliver Wolf (oliverw)</option>
+		  <select class="form-control" id="newEmployeeInput" name ="newEmp">
+		  @for(emp <- allEmps) { 
+		 	<option>@emp.name (@emp.id)</option>
+		 	}
 		  </select>
 		  
 		  <label for="startDateInput">Startdate</label>
-		  <input type="text" class="form-control" id="startDateInput" text="01-01-2014">
+		  <input type="text" class="form-control" id="startDateInput" name="startdate">
 		  
 		  <label for="endDateInput">Enddate</label>
-		  <input type="text" class="form-control" id="endDateInput" text="01-01-2014">
+		  <input type="text" class="form-control" id="endDateInput" name ="enddate">
 	 
-	  	  <button type="submit" class="btn btn-success" href="/projects/1/addemployee" style="margin-top:10px">Save</button>
-	  	  <a type="button" class="btn btn-primary" href="/projects/1/edit" style="margin-top:10px">Back</a>
+	  	  <button type="submit" class="btn btn-success" href="/projects/@project.id/addemployee" style="margin-top:10px">Save</button>
+	  	  <a type="button" class="btn btn-primary" href="/projects/@project.id/edit" style="margin-top:10px">Back</a>
 		
 	  </form>
+	  }
 		</div>
 	</div>
 

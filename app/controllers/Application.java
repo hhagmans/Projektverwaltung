@@ -8,6 +8,8 @@ import java.net.Authenticator;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,8 +17,17 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+
 import models.Employee;
 import models.Project;
+import models.Project_Employee;
 import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -26,6 +37,111 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class Application extends Controller {
+
+	public static String byte2HexStr(byte binary) {
+		StringBuffer sb = new StringBuffer();
+		int hex;
+
+		hex = (int) binary & 0x000000ff;
+		if (0 != (hex & 0xfffffff0)) {
+			sb.append(Integer.toHexString(hex));
+		} else {
+			sb.append("0" + Integer.toHexString(hex));
+		}
+		return sb.toString();
+	}
+
+	public static String encryptPassword(String password) {
+		DESKeySpec dk;
+		SecretKey secretKey = null;
+		try {
+			dk = new DESKeySpec(new Long(7490854493772951678L).toString()
+					.getBytes());
+			SecretKeyFactory kf = SecretKeyFactory.getInstance("DES");
+			secretKey = kf.generateSecret(dk);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Cipher c;
+
+		try {
+			c = Cipher.getInstance("DES/ECB/PKCS5Padding");
+			c.init(Cipher.ENCRYPT_MODE, secretKey);
+			byte[] encrypted;
+			encrypted = c.doFinal(password.getBytes());
+
+			// convert into hexadecimal number, and return as character string.
+			String result = "";
+			for (int i = 0; i < encrypted.length; i++) {
+				result += byte2HexStr(encrypted[i]);
+			}
+
+			return result;
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	public static String decryptPassword(String password) {
+		DESKeySpec dk;
+		SecretKey secretKey = null;
+		try {
+			dk = new DESKeySpec(new Long(7490854493772951678L).toString()
+					.getBytes());
+			SecretKeyFactory kf = SecretKeyFactory.getInstance("DES");
+			secretKey = kf.generateSecret(dk);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Cipher c;
+
+		try {
+			byte[] tmp = new byte[password.length() / 2];
+			int index = 0;
+			while (index < password.length()) {
+				// convert hexadecimal number into decimal number.
+				int num = Integer.parseInt(
+						password.substring(index, index + 2), 16);
+
+				// convert into signed byte.
+				if (num < 128) {
+					tmp[index / 2] = new Byte(Integer.toString(num))
+							.byteValue();
+				} else {
+					tmp[index / 2] = new Byte(
+							Integer.toString(((num ^ 255) + 1) * -1))
+							.byteValue();
+				}
+				index += 2;
+			}
+
+			c = Cipher.getInstance("DES/ECB/PKCS5Padding");
+			c.init(Cipher.DECRYPT_MODE, secretKey);
+			return new String(c.doFinal(tmp));
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
 
 	/**
 	 * Erstellt eine Liste von Employees aus der LiQID Applikation
@@ -39,8 +155,8 @@ public class Application extends Controller {
 
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(loginName, password
-						.toCharArray());
+				return new PasswordAuthentication(loginName, decryptPassword(
+						password).toCharArray());
 			}
 		});
 		URL url = null;
@@ -121,6 +237,28 @@ public class Application extends Controller {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Fügt den gegebenen Employee dem Projekt zu.
+	 * 
+	 * @param emp
+	 *            Employee Objekt
+	 * @param startDate
+	 *            Beginn des Aufenthalts im Projekt
+	 * @param endDate
+	 *            Ende des Aufenthalts im Projekt
+	 * @return true wenn Erstellung erfolgreich, sonst false
+	 */
+	public static boolean addEmployeeToProject(Employee emp, Project project,
+			Date startDate, Date endDate) {
+		try {
+			project.addEmployee(emp, startDate, endDate);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
@@ -237,6 +375,12 @@ public class Application extends Controller {
 
 	}
 
+	/**
+	 * Löscht das Projekt mit der übergebenen id.
+	 * 
+	 * @param id
+	 * @return Projektübersicht aller Projekte
+	 */
 	public static Result deleteProject(long id) {
 		Project project = Ebean.find(Project.class, id);
 		project.delete();
@@ -246,12 +390,85 @@ public class Application extends Controller {
 	}
 
 	/**
+	 * Gibt alle Employees für das Projekt der übergebenen id zurück
+	 * 
+	 * @param projectid
+	 * @return
+	 */
+	public static List<Employee> getEmployeesforProject(long projectid) {
+		Project project = Ebean.find(Project.class, projectid);
+		List<Project_Employee> projemps = Ebean.find(Project_Employee.class)
+				.findList();
+		List<Employee> emps = new ArrayList();
+		Iterator<Project_Employee> iter = projemps.iterator();
+		while (iter.hasNext()) {
+			Project_Employee projemp = iter.next();
+			if (projemp.project.equals(project))
+				emps.add(projemp.employee);
+		}
+		return emps;
+	}
+
+	/**
+	 * Parsed die gegebene Formvalue und gibt den entsprechenden Employee
+	 * zurück.
+	 * 
+	 * @param formValue
+	 * @return
+	 */
+	public static Employee getEmployeeFromForm(String formValue) {
+		String[] splittedValue = formValue.split("\\(");
+		splittedValue = splittedValue[1].split("\\)");
+		return Ebean.find(Employee.class, splittedValue[0]);
+	}
+
+	/**
 	 * Returned die View zum Projectedit
 	 * 
 	 * @return Projectedit
 	 */
-	public static Result projectEdit() {
-		return ok(views.html.projectEdit.render());
+	public static Result projectEdit(long id) {
+		Project project = Ebean.find(Project.class, id);
+		return ok(views.html.projectEdit.render(project, ""));
+	}
+
+	public static Result projectEditSave(long id) {
+		Project project = Ebean.find(Project.class, id);
+		DynamicForm bindedForm = form().bindFromRequest();
+		project.name = bindedForm.get("name");
+		project.description = bindedForm.get("description");
+		URL wikilink;
+		try {
+			wikilink = new URL(bindedForm.get("wiki"));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return badRequest(views.html.projectEdit.render(project,
+					"URL fehlerhaft, Projekt nicht geupdated."));
+		}
+		project.wikiLink = wikilink;
+
+		boolean active;
+		if (bindedForm.get("active") == null)
+			active = false;
+		else
+			active = true;
+
+		Date startDate;
+		Date endDate;
+		try {
+			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("startdate"));
+
+			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("enddate"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return badRequest(views.html.projectEdit.render(project,
+					"Datum fehlerhaft, Projekt nicht geupdated."));
+		}
+		Employee principal = getEmployeeFromForm(bindedForm.get("principal"));
+
+		return ok(views.html.projectView.render(project));
 	}
 
 	/**
@@ -259,8 +476,39 @@ public class Application extends Controller {
 	 * 
 	 * @return
 	 */
-	public static Result projectEditAddEmployee() {
-		return ok(views.html.projectEditAddUser.render());
+	public static Result projectEditAddEmployee(long id) {
+		Project project = Ebean.find(Project.class, id);
+		List<Employee> allEmps = Ebean.find(Employee.class).findList();
+		return ok(views.html.projectEditAddUser.render(project, allEmps, ""));
+	}
+
+	public static Result projectEditAddEmployeeSave(long id) {
+		DynamicForm bindedForm = form().bindFromRequest();
+		Project project = Ebean.find(Project.class, id);
+		Date startDate;
+		Date endDate;
+		try {
+			startDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("startdate"));
+
+			endDate = new SimpleDateFormat("MM/dd/yyyy").parse(bindedForm
+					.get("enddate"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return badRequest(views.html.projectEditAddUser.render(project,
+					Ebean.find(Employee.class).findList(),
+					"Datum fehlerhaft, User nicht hinzugefügt."));
+		}
+
+		Employee emp = getEmployeeFromForm(bindedForm.get("newEmp"));
+
+		boolean ok = addEmployeeToProject(emp, project, startDate, endDate);
+
+		if (ok)
+			return ok(views.html.projectEdit.render(project, ""));
+		else
+			return ok(views.html.projectEdit.render(project,
+					"Beim Hinzufügen des Users ist ein  Problem aufgetreten."));
 	}
 
 	/**
@@ -295,7 +543,7 @@ public class Application extends Controller {
 		DynamicForm bindedForm = form().bindFromRequest();
 		String name = bindedForm.get("name");
 		String password = bindedForm.get("password");
-		boolean success = synchronizeDB(name, password);
+		boolean success = synchronizeDB(name, encryptPassword(password));
 		String message;
 		if (success)
 			message = "Datenbank synchronisiert!";

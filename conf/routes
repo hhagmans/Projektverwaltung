@@ -25,16 +25,19 @@ POST     /projects                          controllers.Application.projectAddSa
 
 
 # Project Edit
-GET     /projects/1/edit                           controllers.Application.projectEdit()
+GET     /projects/:id/edit                           controllers.Application.projectEdit(id: Int)
 
 # Project Edit
-#PUT    /projects/1/                           controllers.Application.projectEditSave()
+PUT    /projects/:id/                           controllers.Application.projectEditSave(id: Int)
 
 # Delete Project
 DELETE /projects/:id						controllers.Application.deleteProject(id: Int)
 
 # Add User in Project Edit
-GET     /projects/1/addemployee                           controllers.Application.projectEditAddEmployee()
+GET     /projects/:id/addemployee                           controllers.Application.projectEditAddEmployee(id: Int)
+
+# Add User in Project Edit SAve
+POST     /projects/:id/addemployee                           controllers.Application.projectEditAddEmployeeSave(id: Int)
 
 # Admin Index
 GET     /admin                           controllers.Application.adminIndex()
