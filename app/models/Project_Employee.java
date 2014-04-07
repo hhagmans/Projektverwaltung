@@ -10,6 +10,14 @@ import play.db.ebean.Model;
 
 import com.avaje.ebean.Ebean;
 
+/**
+ * Mapping Klasse für die n-n Relation zwischen @Project und @Employee. Besitzt
+ * die 2 Zusatzattribute startDate und endDate zum Ermitteln der
+ * Zugehörigkeitszeit einzelner Mitarbeiter.
+ * 
+ * @author hendrikh
+ * 
+ */
 @Entity
 @IdClass(ProjectAssociationId.class)
 public class Project_Employee extends Model {

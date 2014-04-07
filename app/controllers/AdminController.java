@@ -32,6 +32,7 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class AdminController extends Controller {
+
 	public static String byte2HexStr(byte binary) {
 		StringBuffer sb = new StringBuffer();
 		int hex;
@@ -45,6 +46,12 @@ public class AdminController extends Controller {
 		return sb.toString();
 	}
 
+	/**
+	 * Verschlüsselt das im Admin Menü angegebene Passwort
+	 * 
+	 * @param password
+	 * @return
+	 */
 	public static String encryptPassword(String password) {
 		DESKeySpec dk;
 		SecretKey secretKey = null;
@@ -86,6 +93,12 @@ public class AdminController extends Controller {
 		return "";
 	}
 
+	/**
+	 * Entschlüsselt das von encryptPassword verschlüsselte Passwort.
+	 * 
+	 * @param password
+	 * @return
+	 */
 	public static String decryptPassword(String password) {
 		DESKeySpec dk;
 		SecretKey secretKey = null;

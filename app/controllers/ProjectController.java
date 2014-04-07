@@ -45,6 +45,14 @@ public class ProjectController extends Controller {
 		return true;
 	}
 
+	/**
+	 * Validiert das übergebenen Formvalue und parsed ein @Date aus dem
+	 * übergebenen Formvalue.
+	 * 
+	 * @param formValue
+	 * @return
+	 * @throws ParseException
+	 */
 	public static Date getDateFromForm(String formValue) throws ParseException {
 		Date date;
 		Logger.debug(formValue);
@@ -345,6 +353,13 @@ public class ProjectController extends Controller {
 				"Der Mitarbeiter wurde erfolgreich aus dem Projekt gelöscht!"));
 	}
 
+	/**
+	 * Returned die View um einen Employee innerhalb eines Projektes
+	 * (@Project_Employee) zu editieren.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public static Result projectEditEditEmployee(long id) {
 		DynamicForm bindedForm = form().bindFromRequest();
 		Project project = Ebean.find(Project.class, id);
@@ -357,6 +372,13 @@ public class ProjectController extends Controller {
 		return ok(views.html.projectEditEditUser.render(project, association));
 	}
 
+	/**
+	 * Ändert das @Project_Employee Objekt entsprechend der übergebenen
+	 * Attribute ab.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public static Result projectEditEditEmployeeSave(long id) {
 		DynamicForm bindedForm = form().bindFromRequest();
 		Project project = Ebean.find(Project.class, id);
