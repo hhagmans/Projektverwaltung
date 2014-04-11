@@ -42,7 +42,7 @@ public class ProjectTest extends WithApplication {
 		new Project("testProject", "TestDescription", new URL(
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
 		assertEquals(1, Ebean.find(Project.class).findList().size());
-		assertNotNull(Ebean.find(Project.class, "testProject"));
+		assertNotNull(Ebean.find(Project.class, 1));
 
 	}
 
@@ -51,9 +51,9 @@ public class ProjectTest extends WithApplication {
 		new Project("testProject", "TestDescription", new URL(
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
 		assertEquals(1, Ebean.find(Project.class).findList().size());
-		assertNotNull(Ebean.find(Project.class, "testProject"));
+		assertNotNull(Ebean.find(Project.class, 1));
 
-		Ebean.find(Project.class, "testProject").delete();
+		Ebean.find(Project.class, 1).delete();
 		assertEquals(0, Ebean.find(Project.class).findList().size());
 
 	}
@@ -62,15 +62,13 @@ public class ProjectTest extends WithApplication {
 	public void testupdateProject() throws MalformedURLException {
 		new Project("testProject", "TestDescription", new URL(
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
-		assertEquals("testProject",
-				Ebean.find(Project.class, "testProject").name);
+		assertEquals("testProject", Ebean.find(Project.class, 1).name);
 
-		Project proj = Ebean.find(Project.class, "testProject");
+		Project proj = Ebean.find(Project.class, 1);
 		proj.name = "newTestProject";
 		proj.save();
 
-		assertEquals("newtestProject",
-				Ebean.find(Project.class, "testProject").name);
+		assertEquals("newTestProject", Ebean.find(Project.class, 1).name);
 
 	}
 
@@ -80,13 +78,11 @@ public class ProjectTest extends WithApplication {
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
 
 		Employee emp = new Employee("emp", "Employee");
-		Project proj = Ebean.find(Project.class, "testProject");
+		Project proj = Ebean.find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
+		proj.save();
 
-		assertEquals(1, proj.getEmployees());
-
-		assertEquals("newtestProject",
-				Ebean.find(Project.class, "testProject").name);
+		assertEquals(1, proj.getEmployees().size());
 
 	}
 
@@ -96,14 +92,16 @@ public class ProjectTest extends WithApplication {
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
 
 		Employee emp = new Employee("emp", "Employee");
-		Project proj = Ebean.find(Project.class, "testProject");
+		emp.save();
+		Project proj = Ebean.find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
+		proj.save();
 
-		assertEquals(1, proj.getEmployees());
+		assertEquals(1, proj.getEmployees().size());
 
 		proj.getEmployeeAssociations().get(0).delete();
 
-		assertEquals(0, proj.getEmployees());
+		assertEquals(0, proj.getEmployees().size());
 
 	}
 
@@ -114,10 +112,11 @@ public class ProjectTest extends WithApplication {
 				"http://www.innoq.com"), false, new Date(), new Date()).save();
 
 		Employee emp = new Employee("emp", "Employee");
-		Project proj = Ebean.find(Project.class, "testProject");
+		Project proj = Ebean.find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
+		proj.save();
 
-		assertEquals(1, proj.getEmployees());
+		assertEquals(1, proj.getEmployees().size());
 
 		Project_Employee association = proj.getEmployeeAssociations().get(0);
 
