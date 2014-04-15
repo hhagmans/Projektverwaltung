@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 import play.db.ebean.Model;
@@ -30,6 +31,7 @@ public class Project extends Model {
 	@Id
 	public int id;
 	public String name;
+	@Lob
 	public String description;
 	public URL wikiLink;
 	public boolean active;

@@ -10,31 +10,25 @@ create table employee (
 ;
 
 create table project (
-  id                        integer not null,
+  id                        integer auto_increment not null,
   name                      varchar(255),
-  description               varchar(255),
+  description               longtext,
   wiki_link                 varchar(255),
-  active                    boolean,
-  start_date                timestamp,
-  end_date                  timestamp,
+  active                    tinyint(1) default 0,
+  start_date                datetime,
+  end_date                  datetime,
   principalConsultant       varchar(255),
   constraint pk_project primary key (id))
 ;
 
 create table project_employee (
-  project_employee_id       integer not null,
+  project_employee_id       integer auto_increment not null,
   employee_id               varchar(255),
   project_id                integer,
-  start_date                timestamp,
-  end_date                  timestamp,
+  start_date                datetime,
+  end_date                  datetime,
   constraint pk_project_employee primary key (project_employee_id))
 ;
-
-create sequence employee_seq;
-
-create sequence project_seq;
-
-create sequence project_employee_seq;
 
 alter table project add constraint fk_project_principalConsultant_1 foreign key (principalConsultant) references employee (id) on delete restrict on update restrict;
 create index ix_project_principalConsultant_1 on project (principalConsultant);
@@ -43,19 +37,13 @@ create index ix_project_principalConsultant_1 on project (principalConsultant);
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS=0;
 
-drop table if exists employee;
+drop table employee;
 
-drop table if exists project;
+drop table project;
 
-drop table if exists project_employee;
+drop table project_employee;
 
-SET REFERENTIAL_INTEGRITY TRUE;
-
-drop sequence if exists employee_seq;
-
-drop sequence if exists project_seq;
-
-drop sequence if exists project_employee_seq;
+SET FOREIGN_KEY_CHECKS=1;
 
