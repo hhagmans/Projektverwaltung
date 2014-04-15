@@ -52,7 +52,7 @@ POST    /projects/:id/editemployee                           controllers.Project
 GET     /admin                           controllers.AdminController.adminIndex()
 
 # Sync Database in Admin View
-GET     /admin/syncdb                           controllers.AdminController.adminSyncDb()
+POST     /admin/syncdb                           controllers.AdminController.adminSyncDb()
 
 
 # Map static resources from the /public folder to the /assets URL path
