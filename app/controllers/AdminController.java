@@ -184,7 +184,8 @@ public class AdminController extends Controller {
 				JsonNode currentNode = iter.next();
 				String id = currentNode.get("uid").textValue();
 				String name = currentNode.get("displayName").textValue();
-				if (!id.equals("admin"))
+				if (!id.equals("admin") && !id.equals("csarazin")
+						&& !id.equals("pppreader"))
 					list.add(new Employee(id, name));
 			}
 			return list;
