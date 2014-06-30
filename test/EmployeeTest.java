@@ -8,11 +8,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import play.db.jpa.JPA;
 import play.test.FakeApplication;
 import play.test.Helpers;
 import play.test.WithApplication;
-
-import com.avaje.ebean.Ebean;
 
 public class EmployeeTest extends WithApplication {
 
@@ -31,9 +30,13 @@ public class EmployeeTest extends WithApplication {
 	@Test
 	public void testaddEmployee() {
 
-		new Employee("test", "TestEmployee").save();
-		assertEquals(1, Ebean.find(Employee.class).findList().size());
-		assertNotNull(Ebean.find(Employee.class, "test"));
+		JPA.em().persist(new Employee("test", "TestEmployee"));
+		assertEquals(
+				1,
+				JPA.em()
+						.createQuery("Select e from Employee e", Employee.class)
+						.getResultList().size());
+		assertNotNull(JPA.em().find(Employee.class, "test"));
 
 	}
 }

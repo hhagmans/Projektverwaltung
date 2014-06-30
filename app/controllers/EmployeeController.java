@@ -3,11 +3,11 @@ package controllers;
 import java.util.List;
 
 import models.Employee;
-import models.Project_Employee;
+import models.ProjectEmployee;
+import play.db.jpa.JPA;
+import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import com.avaje.ebean.Ebean;
 
 public class EmployeeController extends Controller {
 
@@ -16,9 +16,11 @@ public class EmployeeController extends Controller {
 	 * 
 	 * @return Employeeübersicht
 	 */
+	@Transactional
 	public static Result employeeOverview() {
-		List<Employee> allEmps = null;
-		allEmps = Ebean.find(Employee.class).findList();
+		List<Employee> allEmps = JPA.em()
+				.createQuery("Select e from Employee e", Employee.class)
+				.getResultList();
 		return ok(views.html.employeeOverview.render(allEmps));
 	}
 
@@ -29,10 +31,12 @@ public class EmployeeController extends Controller {
 	 *            id des Employees
 	 * @return
 	 */
+	@Transactional
 	public static Result employeeView(String id) {
 		Employee emp = null;
-		emp = Ebean.find(Employee.class, id);
-		List<Project_Employee> associations = emp.getProjectAssociations();
+		emp = JPA.em().find(Employee.class, id);
+		List<ProjectEmployee> associations = emp.projectEmployee;
+
 		return ok(views.html.employeeView.render(emp, associations));
 	}
 

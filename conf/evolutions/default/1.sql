@@ -4,29 +4,30 @@
 # --- !Ups
 
 create table employee (
-  id                        varchar(255) not null,
-  name                      varchar(255),
+  id varchar(255) not null,
+  name varchar(255),
+  isPrincipal boolean,
   constraint pk_employee primary key (id))
 ;
 
 create table project (
-  id                        integer auto_increment not null,
-  name                      varchar(255),
-  description               longtext,
-  wiki_link                 varchar(255),
-  active                    tinyint(1) default 0,
-  start_date                datetime,
-  end_date                  datetime,
-  principalConsultant       varchar(255),
+  id integer auto_increment not null,
+  name varchar(255),
+  description longtext,
+  wiki_link varchar(255),
+  active tinyint(1) default 0,
+  start_date datetime,
+  end_date datetime,
+  principalConsultant varchar(255),
   constraint pk_project primary key (id))
 ;
 
 create table project_employee (
-  project_employee_id       integer auto_increment not null,
-  employee_id               varchar(255),
-  project_id                integer,
-  start_date                datetime,
-  end_date                  datetime,
+  project_employee_id integer auto_increment not null,
+  employeeId varchar(255),
+  projectId integer,
+  start_date datetime,
+  end_date datetime,
   constraint pk_project_employee primary key (project_employee_id))
 ;
 

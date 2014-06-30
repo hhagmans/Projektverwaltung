@@ -12,13 +12,13 @@ import java.util.List;
 
 import models.Employee;
 import models.Project;
-import models.Project_Employee;
+import models.ProjectEmployee;
 import play.Logger;
 import play.data.DynamicForm;
+import play.db.jpa.JPA;
+import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
-
-import com.avaje.ebean.Ebean;
 
 public class ProjectController extends Controller {
 	/**
@@ -37,7 +37,7 @@ public class ProjectController extends Controller {
 		try {
 			Project project = new Project(name, description, wikilink, active,
 					startDate, endDate);
-			project.save();
+			JPA.em().persist(project);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -95,9 +95,12 @@ public class ProjectController extends Controller {
 	 * 
 	 * @return Projektübersicht
 	 */
+	@Transactional
 	public static Result projectOverview() {
 		List<Project> allProjects = null;
-		allProjects = Ebean.find(Project.class).findList();
+		allProjects = JPA.em()
+				.createQuery("Select p from Project p", Project.class)
+				.getResultList();
 		return ok(views.html.projectOverview.render(allProjects));
 	}
 
@@ -108,10 +111,14 @@ public class ProjectController extends Controller {
 	 *            id des Projekts
 	 * @return
 	 */
+	@Transactional
 	public static Result projectView(int id) {
-		Project project = Ebean.find(Project.class, id);
-		List<Project_Employee> associations = project.getEmployeeAssociations();
-		return ok(views.html.projectView.render(project, associations));
+		Project project = JPA.em().find(Project.class, id);
+		List<ProjectEmployee> associations = project.projectEmployee;
+
+		Employee principal = project.principalConsultant;
+		return ok(views.html.projectView.render(project, associations,
+				principal));
 	}
 
 	/**
@@ -130,6 +137,7 @@ public class ProjectController extends Controller {
 	 * 
 	 * @return Adminview
 	 */
+	@Transactional
 	public static Result projectAddSave() {
 		DynamicForm bindedForm = form().bindFromRequest();
 		String name = bindedForm.get("name");
@@ -175,15 +183,22 @@ public class ProjectController extends Controller {
 	 * @param id
 	 * @return Projektübersicht aller Projekte
 	 */
-	public static Result deleteProject(long id) {
-		Project project = Ebean.find(Project.class, id);
-		List<Project_Employee> associations = project.getEmployeeAssociations();
-		for (Project_Employee project_Employee : associations) {
-			project_Employee.delete();
-		}
-		project.delete();
+	@Transactional
+	public static Result deleteProject(int id) {
 		List<Project> allProjects = null;
-		allProjects = Ebean.find(Project.class).findList();
+		allProjects = JPA.em()
+				.createQuery("Select p from Project p", Project.class)
+				.getResultList();
+
+		Project project = JPA.em().find(Project.class, id);
+		List<ProjectEmployee> associations = project.projectEmployee;
+		for (ProjectEmployee project_Employee : associations) {
+			JPA.em().remove(project_Employee);
+		}
+		JPA.em().remove(project);
+
+		allProjects.remove(project);
+
 		return ok(views.html.projectOverview.render(allProjects));
 	}
 
@@ -194,19 +209,20 @@ public class ProjectController extends Controller {
 	 * @param formValue
 	 * @return
 	 */
+	@Transactional
 	public static Employee getEmployeeFromForm(String formValue) {
 		String[] splittedValue = formValue.split("\\(");
 		splittedValue = splittedValue[1].split("\\)");
-		return Ebean.find(Employee.class, splittedValue[0]);
+		return JPA.em().find(Employee.class, splittedValue[0]);
 	}
 
-	public static Project_Employee getAssociation(Project project, Employee emp) {
-		Project_Employee association = null;
-		List<Project_Employee> associations = project.getEmployeeAssociations();
-		Iterator<Project_Employee> iter = associations.iterator();
+	public static ProjectEmployee getAssociation(Project project, Employee emp) {
+		ProjectEmployee association = null;
+		List<ProjectEmployee> associations = project.projectEmployee;
+		Iterator<ProjectEmployee> iter = associations.iterator();
 		while (iter.hasNext()) {
-			Project_Employee currentAsso = iter.next();
-			if (currentAsso.getEmployee().equals(emp)) {
+			ProjectEmployee currentAsso = iter.next();
+			if (currentAsso.employee.equals(emp)) {
 				association = currentAsso;
 			}
 		}
@@ -218,8 +234,9 @@ public class ProjectController extends Controller {
 	 * 
 	 * @return Projectedit
 	 */
+	@Transactional
 	public static Result projectEdit(long id) {
-		Project project = Ebean.find(Project.class, id);
+		Project project = JPA.em().find(Project.class, (int) id);
 		return ok(views.html.projectEdit.render(project, ""));
 	}
 
@@ -230,8 +247,9 @@ public class ProjectController extends Controller {
 	 * @param id
 	 * @return Die Projektsicht des Projekts mit der übergebenen id
 	 */
-	public static Result projectEditSave(long id) {
-		Project project = Ebean.find(Project.class, id);
+	@Transactional
+	public static Result projectEditSave(int id) {
+		Project project = JPA.em().find(Project.class, id);
 		DynamicForm bindedForm = form().bindFromRequest();
 		project.name = bindedForm.get("name");
 		project.description = bindedForm.get("description");
@@ -273,12 +291,16 @@ public class ProjectController extends Controller {
 					.get("principal"));
 
 			project.principalConsultant = principal;
+
 		}
 
-		project.save();
+		JPA.em().persist(project);
 
-		return ok(views.html.projectView.render(project,
-				project.getEmployeeAssociations()));
+		Employee principal = project.principalConsultant;
+
+		List<ProjectEmployee> projectEmployees = project.projectEmployee;
+		return ok(views.html.projectView.render(project, projectEmployees,
+				principal));
 	}
 
 	/**
@@ -286,16 +308,21 @@ public class ProjectController extends Controller {
 	 * 
 	 * @return
 	 */
-	public static Result projectEditAddEmployee(long id) {
-		Project project = Ebean.find(Project.class, id);
-		List<Employee> allEmps = Ebean.find(Employee.class).findList();
-		allEmps.removeAll(project.getEmployees());
+	@Transactional
+	public static Result projectEditAddEmployee(int id) {
+		Project project = JPA.em().find(Project.class, id);
+		List<Employee> allEmps = JPA.em()
+				.createQuery("Select e from Employee e", Employee.class)
+				.getResultList();
+		allEmps.removeAll(project.getEmps());
+
 		return ok(views.html.projectEditAddUser.render(project, allEmps, ""));
 	}
 
-	public static Result projectEditAddEmployeeSave(long id) {
+	@Transactional
+	public static Result projectEditAddEmployeeSave(int id) {
 		DynamicForm bindedForm = form().bindFromRequest();
-		Project project = Ebean.find(Project.class, id);
+		Project project = JPA.em().find(Project.class, id);
 		Date startDate;
 		Date endDate;
 		try {
@@ -305,7 +332,7 @@ public class ProjectController extends Controller {
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return badRequest(views.html.projectEditAddUser.render(project,
-					Ebean.find(Employee.class).findList(),
+					null, // JPA.em().find(Employee.class).findList(),
 					"Datum fehlerhaft, User nicht hinzugefügt."));
 		}
 
@@ -321,32 +348,30 @@ public class ProjectController extends Controller {
 	}
 
 	/**
-	 * Lösche Employee aus POST in Projectk mit übergebener id.
+	 * Lösche Employee aus POST in Projekt mit übergebener id.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public static Result projectEditDeleteEmployee(long id) {
+	@Transactional
+	public static Result projectEditDeleteEmployee(int id) {
 		DynamicForm bindedForm = form().bindFromRequest();
-		Project project = Ebean.find(Project.class, id);
+		Project project = JPA.em().find(Project.class, id);
 
 		Employee emp = getEmployeeFromForm(bindedForm.get("selectedEmp"));
 
-		List<Project_Employee> associations = project.getEmployeeAssociations();
+		List<ProjectEmployee> associations = project.projectEmployee;
 
-		Iterator<Project_Employee> iter = associations.iterator();
+		Iterator<ProjectEmployee> iter = associations.iterator();
 
 		while (iter.hasNext()) {
-			Project_Employee asso = iter.next();
-			if (asso.getEmployee().equals(emp)) {
-				asso.delete();
+			ProjectEmployee asso = iter.next();
+			if (asso.employee.equals(emp)) {
+				project.projectEmployee.remove(asso);
+				JPA.em().persist(project);
+				JPA.em().remove(asso);
 				break;
 			}
-		}
-
-		if (emp.equals(project.principalConsultant)) {
-			project.principalConsultant = null;
-			project.save();
 		}
 
 		return ok(views.html.projectEdit.render(project,
@@ -355,33 +380,35 @@ public class ProjectController extends Controller {
 
 	/**
 	 * Returned die View um einen Employee innerhalb eines Projektes
-	 * (@Project_Employee) zu editieren.
+	 * (@ProjectEmployee) zu editieren.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public static Result projectEditEditEmployee(long id) {
+	@Transactional
+	public static Result projectEditEditEmployee(int id) {
 		DynamicForm bindedForm = form().bindFromRequest();
-		Project project = Ebean.find(Project.class, id);
+		Project project = JPA.em().find(Project.class, id);
 		if (bindedForm.get("selectedEmp") == "") {
 			return badRequest(views.html.projectEdit.render(project,
 					"Kein Mitarbeiter ausgewählt!"));
 		}
 		Employee emp = getEmployeeFromForm(bindedForm.get("selectedEmp"));
-		Project_Employee association = getAssociation(project, emp);
+		ProjectEmployee association = getAssociation(project, emp);
 		return ok(views.html.projectEditEditUser.render(project, association));
 	}
 
 	/**
-	 * Ändert das @Project_Employee Objekt entsprechend der übergebenen
-	 * Attribute ab.
+	 * Ändert das @ProjectEmployee Objekt entsprechend der übergebenen Attribute
+	 * ab.
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public static Result projectEditEditEmployeeSave(long id) {
+	@Transactional
+	public static Result projectEditEditEmployeeSave(int id) {
 		DynamicForm bindedForm = form().bindFromRequest();
-		Project project = Ebean.find(Project.class, id);
+		Project project = JPA.em().find(Project.class, id);
 
 		Date startDate;
 		Date endDate;
@@ -395,12 +422,12 @@ public class ProjectController extends Controller {
 					"Datum fehlerhaft, Employee nicht geupdated."));
 		}
 
-		Project_Employee association = getAssociation(project,
+		ProjectEmployee association = getAssociation(project,
 				getEmployeeFromForm(bindedForm.get("emp")));
 
 		association.startDate = startDate;
 		association.endDate = endDate;
-		association.save();
+		JPA.em().persist(association);
 
 		return ok(views.html.projectEdit.render(project,
 				"Employee erfolgreich geupdated!"));

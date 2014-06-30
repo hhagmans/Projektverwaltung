@@ -3,19 +3,22 @@ package models;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
-import play.db.ebean.Model;
-
-import com.avaje.ebean.Ebean;
+import play.db.jpa.JPA;
 
 /**
  * Beschreibt ein Projekt der Firma
@@ -24,23 +27,39 @@ import com.avaje.ebean.Ebean;
  * 
  */
 @Entity
-public class Project extends Model {
+public class Project implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	public int id;
+
 	public String name;
+
 	@Lob
 	public String description;
+
+	@Column(name = "wiki_link")
 	public URL wikiLink;
+
 	public boolean active;
+
+	@Column(name = "start_date")
 	public Date startDate;
+
+	@Column(name = "end_date")
 	public Date endDate;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+	public List<ProjectEmployee> projectEmployee = new ArrayList<ProjectEmployee>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "principalConsultant")
 	public Employee principalConsultant;
+
+	public Project() {
+	}
 
 	public Project(String name, String description, URL wikiLink,
 			boolean active, Date startDate, Date endDate) {
@@ -50,50 +69,24 @@ public class Project extends Model {
 		this.active = active;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.principalConsultant = null;
 	}
 
-	public Project(String name, String description, URL wikiLink,
-			boolean active, Date startDate, Date endDate,
-			Employee principalConsultant) {
-		this.name = name;
-		this.description = description;
-		this.wikiLink = wikiLink;
-		this.active = active;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.principalConsultant = principalConsultant;
+	@Transient
+	public List<Employee> getEmps() {
+		List<Employee> emps = new ArrayList<>();
+		for (ProjectEmployee pe : this.projectEmployee) {
+			emps.add(pe.employee);
+		}
+		return emps;
 	}
 
 	/**
 	 * Füge einen Employee zum Projekt hinzu inkl startDate und endDate
-	 * 
-	 * @param employee
-	 * @param teamLead
 	 */
 	public void addEmployee(Employee emp, Date startDate, Date endDate) {
-		Project_Employee association = new Project_Employee();
-		association.setEmployee(emp);
-		association.setProject(this);
-		association.startDate = startDate;
-		association.endDate = endDate;
-
-		association.save();
-	}
-
-	public List<Project_Employee> getEmployeeAssociations() {
-		return Ebean.find(Project_Employee.class).where()
-				.eq("project_id", this.id).findList();
-	}
-
-	public List<Employee> getEmployees() {
-		List<Project_Employee> list = getEmployeeAssociations();
-		Iterator<Project_Employee> iter = list.iterator();
-		ArrayList<Employee> empList = new ArrayList<Employee>();
-		while (iter.hasNext()) {
-			Project_Employee actAsso = iter.next();
-			empList.add(Ebean.find(Employee.class, actAsso.employee_id));
-		}
-		return empList;
+		ProjectEmployee projEmp = new ProjectEmployee(this, emp, startDate,
+				endDate);
+		projectEmployee.add(projEmp);
+		JPA.em().persist(this);
 	}
 }

@@ -11,17 +11,16 @@ import java.util.Date;
 
 import models.Employee;
 import models.Project;
-import models.Project_Employee;
+import models.ProjectEmployee;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import play.db.jpa.JPA;
 import play.test.FakeApplication;
 import play.test.Helpers;
 import play.test.WithApplication;
-
-import com.avaje.ebean.Ebean;
 
 public class ProjectTest extends WithApplication {
 	static FakeApplication app;
@@ -39,93 +38,118 @@ public class ProjectTest extends WithApplication {
 	@Test
 	public void testaddProject() throws MalformedURLException {
 
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
-		assertEquals(1, Ebean.find(Project.class).findList().size());
-		assertNotNull(Ebean.find(Project.class, 1));
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
+		assertEquals(1,
+				JPA.em().createQuery("Select p from Project p", Project.class)
+						.getResultList().size());
+		assertNotNull(JPA.em().find(Project.class, 1));
 
 	}
 
 	@Test
 	public void testdeleteProject() throws MalformedURLException {
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
-		assertEquals(1, Ebean.find(Project.class).findList().size());
-		assertNotNull(Ebean.find(Project.class, 1));
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
+		assertEquals(1,
+				JPA.em().createQuery("Select p from Project p", Project.class)
+						.getResultList().size());
+		assertNotNull(JPA.em().find(Project.class, 1));
 
-		Ebean.find(Project.class, 1).delete();
-		assertEquals(0, Ebean.find(Project.class).findList().size());
+		JPA.em().remove(JPA.em().find(Project.class, 1));
+		assertEquals(0,
+				JPA.em().createQuery("Select p from Project p", Project.class)
+						.getResultList().size());
 
 	}
 
 	@Test
 	public void testupdateProject() throws MalformedURLException {
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
-		assertEquals("testProject", Ebean.find(Project.class, 1).name);
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
+		assertEquals("testProject", JPA.em().find(Project.class, 1).name);
 
-		Project proj = Ebean.find(Project.class, 1);
+		Project proj = JPA.em().find(Project.class, 1);
 		proj.name = "newTestProject";
-		proj.save();
+		JPA.em().persist(proj);
 
-		assertEquals("newTestProject", Ebean.find(Project.class, 1).name);
+		assertEquals("newTestProject", JPA.em().find(Project.class, 1).name);
 
 	}
 
 	@Test
 	public void testaddEmployeeToProject() throws MalformedURLException {
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
 
 		Employee emp = new Employee("emp", "Employee");
-		Project proj = Ebean.find(Project.class, 1);
+		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
-		proj.save();
+		JPA.em().persist(proj);
 
-		assertEquals(1, proj.getEmployees().size());
+		assertEquals(1, proj.projectEmployee.size());
 
 	}
 
 	@Test
 	public void testdeleteEmployeeFromProject() throws MalformedURLException {
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
 
 		Employee emp = new Employee("emp", "Employee");
-		emp.save();
-		Project proj = Ebean.find(Project.class, 1);
+		JPA.em().persist(emp);
+		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
-		proj.save();
+		JPA.em().persist(proj);
 
-		assertEquals(1, proj.getEmployees().size());
+		assertEquals(1, proj.projectEmployee.size());
 
-		proj.getEmployeeAssociations().get(0).delete();
+		proj.projectEmployee.remove(emp);
+		JPA.em().persist(proj);
 
-		assertEquals(0, proj.getEmployees().size());
+		assertEquals(0, proj.projectEmployee.size());
 
 	}
 
 	@Test
 	public void testupdateEmployeeInProject() throws MalformedURLException,
 			ParseException {
-		new Project("testProject", "TestDescription", new URL(
-				"http://www.innoq.com"), false, new Date(), new Date()).save();
+		JPA.em()
+				.persist(
+						new Project("testProject", "TestDescription", new URL(
+								"http://www.innoq.com"), false, new Date(),
+								new Date()));
 
 		Employee emp = new Employee("emp", "Employee");
-		Project proj = Ebean.find(Project.class, 1);
+		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
-		proj.save();
+		JPA.em().persist(proj);
 
-		assertEquals(1, proj.getEmployees().size());
+		assertEquals(1, proj.projectEmployee.size());
 
-		Project_Employee association = proj.getEmployeeAssociations().get(0);
+		ProjectEmployee association = proj.projectEmployee.get(0);
 
 		association.startDate = new SimpleDateFormat("MM/dd/yyyy")
 				.parse("11/11/2014");
-		association.save();
+		JPA.em().persist(association);
 
 		assertEquals(new SimpleDateFormat("MM/dd/yyyy").parse("11/11/2014"),
-				proj.getEmployeeAssociations().get(0).startDate);
+				proj.projectEmployee.get(0).startDate);
 
 	}
 }

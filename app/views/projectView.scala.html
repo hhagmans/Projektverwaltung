@@ -1,4 +1,4 @@
-@(project: Project, associations: List[Project_Employee])
+@(project: Project, associations: List[ProjectEmployee], principal: Employee)
 
 @main("Projekt")("")("active")("")("") {
 
@@ -14,8 +14,8 @@
   	@project.description
   </div>
   <div class="panel-footer">
-  @if(project.principalConsultant != null) {
-  	<a href="/employee/@project.principalConsultant.id"> @project.principalConsultant.name (Principal)</a> <br>
+  @if(principal != null) {
+  	<a href="/employee/@principal.id"> @principal.name (Principal)</a> <br>
   	} else { Kein Principal gewählt <br>}
   	<a href="@project.wikiLink">Wiki</a>
   </div>
@@ -28,7 +28,7 @@
   <div class="panel-body">
   	<ul>
   		@for(asso <- associations) { 
-  		<li> <a href="/employee/@asso.getEmployee.id"> @asso.getEmployee().name</a> @if(asso.startDate == null) {?} else {@asso.startDate.format("dd.MM.yyyy")}-@if(asso.endDate == null) {?} else {@asso.endDate.format("dd.MM.yyyy")}</li>
+  		<li> <a href="/employee/@asso.employee.id"> @asso.employee.name</a> @if(asso.startDate == null) {?} else {@asso.startDate.format("dd.MM.yyyy")}-@if(asso.endDate == null) {?} else {@asso.endDate.format("dd.MM.yyyy")}</li>
 		 	}
 	</ul>
   </div>

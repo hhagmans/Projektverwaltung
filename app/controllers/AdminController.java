@@ -24,11 +24,12 @@ import javax.crypto.spec.DESKeySpec;
 
 import models.Employee;
 import play.data.DynamicForm;
+import play.db.jpa.JPA;
+import play.db.jpa.Transactional;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class AdminController extends Controller {
@@ -151,6 +152,39 @@ public class AdminController extends Controller {
 	}
 
 	/**
+	 * Prüft mittels LiQID, ob der Mitarbeiter Principal Consultant ist.
+	 * 
+	 * @param emp
+	 * @return
+	 */
+	public static boolean checkIsPrincipal(String id) {
+		URL url = null;
+		try {
+			url = new URL("https://intern.innoq.com/liqid/users/" + id
+					+ ".json");
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
+		InputStream is = null;
+		try {
+			is = url.openStream();
+			JsonNode json = Json.parse(is);
+			Iterator<JsonNode> iter = json.get("groups").iterator();
+			while (iter.hasNext()) {
+				JsonNode currentNode = iter.next();
+				if (currentNode.get("uid").textValue().equals("Principals")) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Erstellt eine Liste von Employees aus der LiQID Applikation
 	 * 
 	 * @return Liste von Employees
@@ -184,9 +218,10 @@ public class AdminController extends Controller {
 				JsonNode currentNode = iter.next();
 				String id = currentNode.get("uid").textValue();
 				String name = currentNode.get("displayName").textValue();
+				boolean isPrincipal = checkIsPrincipal(id);
 				if (!id.equals("admin") && !id.equals("csarazin")
 						&& !id.equals("pppreader"))
-					list.add(new Employee(id, name));
+					list.add(new Employee(id, name, isPrincipal));
 			}
 			return list;
 		} catch (IOException e) {
@@ -215,7 +250,8 @@ public class AdminController extends Controller {
 			is = url.openStream();
 			JsonNode json = Json.parse(is);
 			String name = json.get("displayName").textValue();
-			return new Employee(id, name);
+			boolean isPrincipal = checkIsPrincipal(id);
+			return new Employee(id, name, isPrincipal);
 		} catch (IOException e) {
 			e.printStackTrace();
 
@@ -231,14 +267,12 @@ public class AdminController extends Controller {
 	 * @param password
 	 * @return true wenn erfolgreich, sonst false
 	 */
+	@Transactional
 	public static boolean synchronizeDB(String name, String password) {
 		List<Employee> allEmps = getAllEmployees(name, password);
-		if (!allEmps.isEmpty()) {
+		if (allEmps != null) {
 			for (Employee employee : allEmps) {
-				if (Ebean.find(Employee.class, employee.id) == null)
-					employee.save();
-				else if (Ebean.find(Employee.class, employee.id).name != employee.name)
-					employee.update();
+				JPA.em().persist(employee);
 			}
 			return true;
 		} else {
@@ -261,6 +295,7 @@ public class AdminController extends Controller {
 	 * 
 	 * @return Adminview
 	 */
+	@Transactional
 	public static Result adminSyncDb() {
 		DynamicForm bindedForm = form().bindFromRequest();
 		String name = bindedForm.get("name");

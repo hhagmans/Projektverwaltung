@@ -13,7 +13,7 @@
 	  
   	  <label for="employeeGroup">Current Employees</label>
 	  <ul class="list-group" id="employeeGroup">
-	  @for(emp <- project.getEmployees()) { 
+	  @for(emp <- project.getEmps()) {
 	    <li class="list-group-item list-group-item-info">@emp.name (@emp.id)</li>
 	    }
 	  </ul>

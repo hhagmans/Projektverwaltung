@@ -2,14 +2,17 @@ package models;
 
 import java.io.Serializable;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class ProjectAssociationId implements Serializable {
 
-	private long employeeId;
+	public String employeeId;
 
-	private long projectId;
+	public int projectId;
 
 	public int hashCode() {
-		return (int) (employeeId + projectId);
+		return (int) (employeeId.hashCode() + projectId);
 	}
 
 	public boolean equals(Object object) {
@@ -20,5 +23,4 @@ public class ProjectAssociationId implements Serializable {
 		}
 		return false;
 	}
-
 }
