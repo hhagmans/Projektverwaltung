@@ -51,10 +51,10 @@ public class Project implements java.io.Serializable {
 	@Column(name = "end_date")
 	public Date endDate;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "project", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL)
 	public List<ProjectEmployee> projectEmployee = new ArrayList<ProjectEmployee>();
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "principalConsultant")
 	public Employee principalConsultant;
 
@@ -78,6 +78,14 @@ public class Project implements java.io.Serializable {
 			emps.add(pe.employee);
 		}
 		return emps;
+	}
+
+	public List<Employee> getAllPrincipals() {
+		return JPA
+				.em()
+				.createQuery(
+						"Select e from Employee e where e.isPrincipal = 1",
+						Employee.class).getResultList();
 	}
 
 	/**

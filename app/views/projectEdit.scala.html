@@ -41,7 +41,7 @@
 	  	<label for="principalInput">Principal</label>
 		<select class="form-control" id="newEmployeeInput" name="principal">
 		<option value="">Select new Principal</option>
- 		@for(emp <- project.getEmps()) {
+ 		@for(emp <- project.getAllPrincipals()) {
  			<option>@emp.name (@emp.id)</option> 
  		} 
 		</select>

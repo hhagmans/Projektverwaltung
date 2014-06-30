@@ -4,6 +4,21 @@
 
 <h1>@emp.name (@emp.id)</h1>
 
+@if(emp.isPrincipal) {
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Ist Principal Consultant in folgenden Projekten</h3>
+  </div>
+  <div class="panel-body">
+  	<ul>
+  	@for(project <- emp.getPrincipalProjectsForEmployee()) { 
+  		<li> <a href="/projects/@project.id"> @project.name</a> @if(project.startDate == null) {?} else {@project.startDate.format("dd.MM.yyyy")}-@if(project.endDate == null) {?} else {@project.endDate.format("dd.MM.yyyy")}</li>
+  	}
+	</ul>
+  </div>
+</div>
+}
+
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">Projekte</h3>

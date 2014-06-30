@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import play.db.jpa.JPA;
+
 /**
  * Beschreibt einen Mitarbeiter der Firma
  * 
@@ -50,9 +52,19 @@ public class Employee implements java.io.Serializable {
 		return projects;
 	}
 
-	@Transient
-	public List<Project> getEmployees() {
-		return null;
+	public List<Project> getPrincipalProjectsForEmployee() {
+		List<Project> allProjects = JPA
+				.em()
+				.createQuery(
+						"Select p from Project p where p.principalConsultant != null",
+						Project.class).getResultList();
+		List<Project> principalProjects = new ArrayList<Project>();
+		for (Project project : allProjects) {
+			if (project.principalConsultant.equals(this)) {
+				principalProjects.add(project);
+			}
+		}
+		return principalProjects;
 	}
 
 	@Override
