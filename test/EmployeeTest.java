@@ -30,7 +30,7 @@ public class EmployeeTest extends WithApplication {
 	@Test
 	public void testaddEmployee() {
 
-		JPA.em().persist(new Employee("test", "TestEmployee"));
+		JPA.em().persist(new Employee("test", "TestEmployee", false));
 		assertEquals(
 				1,
 				JPA.em()

@@ -94,7 +94,7 @@ public class ProjectTest extends WithApplication {
 								"http://www.innoq.com"), false, new Date(),
 								new Date()));
 
-		Employee emp = new Employee("emp", "Employee");
+		Employee emp = new Employee("emp", "Employee", false);
 		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
 		JPA.em().persist(proj);
@@ -111,7 +111,7 @@ public class ProjectTest extends WithApplication {
 								"http://www.innoq.com"), false, new Date(),
 								new Date()));
 
-		Employee emp = new Employee("emp", "Employee");
+		Employee emp = new Employee("emp", "Employee", false);
 		JPA.em().persist(emp);
 		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
@@ -135,7 +135,7 @@ public class ProjectTest extends WithApplication {
 								"http://www.innoq.com"), false, new Date(),
 								new Date()));
 
-		Employee emp = new Employee("emp", "Employee");
+		Employee emp = new Employee("emp", "Employee", false);
 		Project proj = JPA.em().find(Project.class, 1);
 		proj.addEmployee(emp, new Date(), new Date());
 		JPA.em().persist(proj);
